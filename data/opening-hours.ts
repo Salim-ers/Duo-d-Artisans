@@ -1,4 +1,9 @@
-/** Horaires officiels (source : fiche Google + affichage en vitrine). */
+/**
+ * Horaires habituels (source : fiche Google + affichage en vitrine).
+ * Ils alimentent l'affichage, le statut « ouvert / fermé » et le JSON-LD.
+ * Les fermetures exceptionnelles et jours fériés ne sont pas gérés :
+ * le site le signale toujours à côté du statut.
+ */
 export type Interval = { open: string; close: string };
 export type DayHours = { day: number; label: string; intervals: Interval[] };
 
@@ -16,3 +21,6 @@ export const openingHours: DayHours[] = [
 export const weekOrder = [1, 2, 3, 4, 5, 6, 0];
 
 export const hoursByDay = (day: number) => openingHours.find((d) => d.day === day);
+
+export const formatIntervals = (intervals: Interval[]) =>
+  intervals.length === 0 ? 'Fermé' : intervals.map((i) => `${i.open.replace(':', 'h')} – ${i.close.replace(':', 'h')}`).join(' · ');

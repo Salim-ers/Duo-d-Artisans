@@ -5,26 +5,23 @@
   "description": "Site vitrine de la boulangerie-pâtisserie Le Duo d'Artisans — Rantigny (60290)",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/check-images.mjs",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "check:images": "node scripts/check-images.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "gsap": "^3.12.5",
-    "lucide-react": "^0.454.0",
     "next": "^15.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "server-only": "^0.0.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^22.9.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.15",
     "typescript": "^5.6.3"
   }
 }

@@ -1,57 +1,56 @@
-import { media, type MediaKey } from './media';
+import type { MediaKey } from './media';
 
-export type Category =
-  | 'boulangerie' | 'viennoiserie' | 'patisserie' | 'gateaux' | 'snacking' | 'salades' | 'gourmandises';
+/**
+ * Créations présentées sur le site. Aucun prix, aucune recette ni origine
+ * inventée : uniquement ce que montrent les photographies de la boutique.
+ */
+
+export type Filter = 'pain' | 'viennoiserie' | 'patisserie' | 'sale' | 'boutique';
+
+export const filters: { id: Filter | 'tout'; label: string }[] = [
+  { id: 'tout', label: 'Tout' },
+  { id: 'pain', label: 'Pain' },
+  { id: 'viennoiserie', label: 'Viennoiserie' },
+  { id: 'patisserie', label: 'Pâtisserie' },
+  { id: 'sale', label: 'Salé' },
+  { id: 'boutique', label: 'Boutique' },
+];
 
 export type Creation = {
   id: string;
   name: string;
-  category: Category;
+  note: string;
+  filter: Filter;
   image: MediaKey;
-  /** Description volontairement générique : aucune recette ni origine inventée. */
-  description?: string;
-  /** "boutique" = disponible en boutique · "commande" = sur demande. */
-  availability: 'boutique' | 'commande';
+  /** « commande » : pièce réalisée sur demande. */
+  onOrder?: boolean;
 };
 
-export const categories: { id: Category | 'tout'; label: string }[] = [
-  { id: 'tout', label: 'Tout' },
-  { id: 'boulangerie', label: 'Boulangerie' },
-  { id: 'viennoiserie', label: 'Viennoiserie' },
-  { id: 'patisserie', label: 'Pâtisserie' },
-  { id: 'gateaux', label: 'Gâteaux' },
-  { id: 'snacking', label: 'Snacking' },
-  { id: 'salades', label: 'Salades' },
-  { id: 'gourmandises', label: 'Gourmandises' },
-];
-
 export const creations: Creation[] = [
-  { id: 'baguettes', name: 'Baguettes', category: 'boulangerie', image: 'baguettesTradition',
-    description: 'La base de la journée, croustillante.', availability: 'boutique' },
-  { id: 'pains', name: 'Pains', category: 'boulangerie', image: 'baguettesFournil',
-    description: 'Cuits sur place, du matin au soir.', availability: 'boutique' },
-  { id: 'viennoiseries', name: 'Viennoiseries', category: 'viennoiserie', image: 'painsChocolat',
-    description: 'Pains au chocolat et feuilletés dorés.', availability: 'boutique' },
-  { id: 'macarons', name: 'Grands macarons', category: 'patisserie', image: 'macarons',
-    description: 'Framboise, pistache, garnis de fruits frais.', availability: 'boutique' },
-  { id: 'entremets', name: 'Entremets citron & framboise', category: 'patisserie', image: 'entremets',
-    description: 'Pâtisseries individuelles, finition velours.', availability: 'boutique' },
-  { id: 'flans', name: 'Flans individuels', category: 'patisserie', image: 'flans',
-    description: 'Chocolat, pistache — part généreuse.', availability: 'boutique' },
-  { id: 'vitrine-patisseries', name: 'Tartes, éclairs & tartelettes', category: 'patisserie', image: 'vitrineEclairs',
-    description: 'La vitrine change au fil des jours.', availability: 'boutique' },
-  { id: 'gateau-fruits', name: 'Gâteau aux fruits frais', category: 'gateaux', image: 'gateauFruits',
-    description: 'Pièce à partager, fruits de saison.', availability: 'commande' },
-  { id: 'number-cake', name: 'Number cake', category: 'gateaux', image: 'numberCake',
-    description: 'Chiffres et lettres pour les grandes occasions.', availability: 'commande' },
-  { id: 'sandwichs', name: 'Sandwichs', category: 'snacking', image: 'sandwichs',
-    description: 'Préparés en boutique, prêts à emporter.', availability: 'boutique' },
-  { id: 'salades', name: 'Salades composées', category: 'salades', image: 'salades',
-    description: 'Salades et taboulés du jour.', availability: 'boutique' },
-  { id: 'cookies', name: 'Cookies garnis', category: 'gourmandises', image: 'cookies',
-    description: 'Chocolat, caramel, fruits rouges.', availability: 'boutique' },
-  { id: 'vitrine-gourmandises', name: 'Gourmandises', category: 'gourmandises', image: 'vitrineFlans',
-    description: 'Meringues, confiseries et douceurs du comptoir.', availability: 'boutique' },
+  { id: 'baguettes', name: 'Baguettes', note: 'La base de la journée, croustillante.', filter: 'pain', image: 'baguettesTradition' },
+  { id: 'vitrine', name: 'La vitrine', note: 'Éclairs, Paris-Brest, tartes aux fruits.', filter: 'boutique', image: 'vitrineEclairs' },
+  { id: 'macarons', name: 'Grands macarons', note: 'Framboise, pistache, fruits frais.', filter: 'patisserie', image: 'macarons' },
+  { id: 'viennoiseries', name: 'Viennoiseries', note: 'Pains au chocolat, feuilletage doré.', filter: 'viennoiserie', image: 'painsChocolat' },
+  { id: 'number-cake', name: 'Number cake', note: 'Chiffres et lettres, sur commande.', filter: 'patisserie', image: 'numberCake', onOrder: true },
+  { id: 'sandwichs', name: 'Sandwichs', note: 'En baguette, prêts à emporter.', filter: 'sale', image: 'sandwichs' },
+  { id: 'pains', name: 'Pains', note: 'À la sortie du four.', filter: 'pain', image: 'baguettesFournil' },
+  { id: 'entremets', name: 'Entremets citron & framboise', note: 'Pâtisseries individuelles.', filter: 'patisserie', image: 'entremets' },
+  { id: 'boutique', name: 'La boutique', note: 'Le comptoir et ses vitrines.', filter: 'boutique', image: 'boutique' },
+  { id: 'gateau-fruits', name: 'Gâteau aux fruits frais', note: 'À partager, sur commande.', filter: 'patisserie', image: 'gateauFruits', onOrder: true },
+  { id: 'salades', name: 'Salades composées', note: 'Salades et taboulés du jour.', filter: 'sale', image: 'salades' },
+  { id: 'flans', name: 'Flans individuels', note: 'Chocolat, pistache.', filter: 'patisserie', image: 'flans' },
+  { id: 'petrin', name: 'Au pétrin', note: 'La pâte, avant le pain.', filter: 'pain', image: 'petrin' },
+  { id: 'cookies', name: 'Cookies garnis', note: 'Chocolat, caramel, fruits rouges.', filter: 'patisserie', image: 'cookies' },
+  { id: 'gourmandises', name: 'Gourmandises', note: 'Flans, macarons, tartelettes en vitrine.', filter: 'boutique', image: 'vitrineFlans' },
+  { id: 'patisseries', name: 'Pâtisseries du jour', note: 'La sélection change au fil des jours.', filter: 'boutique', image: 'vitrinePatisseries' },
 ];
 
-export const creationImage = (c: Creation) => media[c.image];
+/** Catalogue éditorial de l'accueil : six univers, six entrées. */
+export const chapters: { n: string; title: string; line: string; image: MediaKey; href: string; cta: string }[] = [
+  { n: '01', title: 'Pain', line: 'Le quotidien, croustillant.', image: 'baguettesTradition', href: '/nos-creations?filtre=pain', cta: 'Voir le pain' },
+  { n: '02', title: 'Viennoiserie', line: 'Le feuilletage du matin.', image: 'painsChocolat', href: '/nos-creations?filtre=viennoiserie', cta: 'Voir les viennoiseries' },
+  { n: '03', title: 'Pâtisserie', line: 'La vitrine, pièce par pièce.', image: 'entremets', href: '/nos-creations?filtre=patisserie', cta: 'Voir les pâtisseries' },
+  { n: '04', title: 'Gourmandises', line: 'Pour le goûter, ou sans raison.', image: 'cookies', href: '/nos-creations?filtre=patisserie', cta: 'Voir les gourmandises' },
+  { n: '05', title: 'Gâteaux', line: 'Pour les jours qui comptent.', image: 'numberCake', href: '/commandes', cta: 'Demander un gâteau' },
+  { n: '06', title: 'Snacking', line: 'Le midi, préparé en boutique.', image: 'sandwichs', href: '/nos-creations?filtre=sale', cta: 'Voir le salé' },
+];

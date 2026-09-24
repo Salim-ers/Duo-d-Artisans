@@ -1,66 +1,47 @@
-import type { Metadata } from 'next';
-import { PageHero } from '@/components/sections/PageHero';
-import { OrderForm } from '@/components/forms/OrderForm';
-import { SectionMark } from '@/components/ui/SectionMark';
-import { FinalCTA } from '@/components/sections/FinalCTA';
 import { media } from '@/data/media';
 import { site } from '@/data/site';
+import { Photo } from '@/components/ui/Photo';
+import { JsonLd } from '@/components/ui/JsonLd';
+import { OrderForm } from '@/components/forms/OrderForm';
+import { pageMetadata } from '@/lib/seo';
+import { breadcrumbSchema } from '@/lib/schema';
 
-export const metadata: Metadata = {
-  title: 'Commandes & événements',
+export const metadata = pageMetadata({
+  title: 'Commandes — gâteau d’anniversaire à Rantigny',
   description:
-    'Gâteaux d’anniversaire, desserts à partager, demandes particulières : contactez Le Duo d’Artisans à Rantigny pour connaître les possibilités et les délais.',
-  alternates: { canonical: '/commandes' },
-};
-
-const kinds = [
-  { title: 'Gâteaux', text: 'Pièces d’anniversaire et créations à partager.' },
-  { title: 'Événements', text: 'Desserts pour une occasion, propositions traiteur.' },
-  { title: 'Demandes particulières', text: 'Une idée précise ? Parlons-en directement.' },
-];
+    'Gâteau d’anniversaire, number cake, entremets pour un événement : faites votre demande au Duo d’Artisans à Rantigny. Confirmation par la boutique.',
+  path: '/commandes',
+  image: media.numberCake,
+});
 
 export default function CommandesPage() {
   return (
     <>
-      <PageHero
-        crumb="Commandes & événements"
-        title={<>Quelque chose<br />à célébrer ?</>}
-        lede="Anniversaires, événements, desserts à partager : la boutique étudie chaque demande."
-        image={media.numberCake}
-        position="center 40%"
-      />
+      <JsonLd data={breadcrumbSchema([{ name: 'Commandes', path: '/commandes' }])} />
 
-      <section className="section bg-cream">
-        <div className="container info-grid">
-          <div>
-            <SectionMark>Ce qui est possible</SectionMark>
-            <h2 className="display d-m reveal" data-delay=".06s">Dites-nous ce que vous avez en tête.</h2>
-            <p className="lede reveal" data-delay=".12s" style={{ marginTop: 22 }}>
-              Contactez directement la boutique pour connaître les possibilités, disponibilités,
-              délais et tarifs. Vous pouvez aussi passer nous voir : c’est souvent plus simple pour
-              choisir une pièce ou un format.
+      <section className="opening-split" aria-labelledby="cmd-title">
+        <div className="wrap opening-split-grid">
+          <div className="opening-split-text">
+            <p className="folio">Commandes</p>
+            <h1 id="cmd-title" className="t-xl">Quelque chose<br /><em>à célébrer ?</em></h1>
+            <p className="t-lead">
+              Anniversaire, fête de famille, événement : décrivez votre projet en six étapes.
+              La boutique étudie chaque demande et vous recontacte.
             </p>
-
-            <div className="values" style={{ gridTemplateColumns: '1fr', marginTop: 36 }}>
-              {kinds.map((kind, i) => (
-                <div className="value reveal" data-delay={`${i * 0.08}s`} key={kind.title}>
-                  <h3>{kind.title}</h3>
-                  <p>{kind.text}</p>
-                </div>
-              ))}
-            </div>
-
-            <p className="info-block reveal" style={{ marginTop: 34 }}>
-              <span className="info-label">Le plus direct</span>
-              <a className="info-value" href={site.phone.href}>{site.phone.display}</a>
+            <p className="confirm-note">Votre demande sera confirmée par la boutique.</p>
+            <p className="t-small">
+              Plus direct : <a className="lnk" href={site.phone.href}>{site.phone.display}</a>, ou en passant en boutique.
             </p>
           </div>
-
-          <OrderForm />
+          <Photo image={media.numberCake} sizes="(max-width: 820px) 92vw, 44vw" priority reveal={false} className="opening-split-photo" />
         </div>
       </section>
 
-      <FinalCTA />
+      <section className="order-section" aria-label="Formulaire de demande">
+        <div className="wrap">
+          <OrderForm />
+        </div>
+      </section>
     </>
   );
 }

@@ -1,52 +1,50 @@
-import { openingHours, hoursByDay } from '@/data/opening-hours';
+import { openingHours, hoursByDay, formatIntervals } from '@/data/opening-hours';
 
 export type BusinessStatus = {
-  status: 'open' | 'closed';
-  label: string;
-  /** Heure de fermeture si ouvert. */
-  closesAt?: string;
-  /** Heure de prochaine ouverture si fermé. */
-  opensAt?: string;
+  open: boolean;
   /** Jour courant à Paris (0 = dimanche). */
   day: number;
+  /** Horaires du jour, déjà formatés (« Fermé » si fermé toute la journée). */
+  today: string;
+  /** Précision : « jusqu'à 19h30 », « ouvre à 06h30 », « réouverture mardi à 06h30 ». */
+  detail: string;
 };
 
 const toMinutes = (time: string) => Number(time.slice(0, 2)) * 60 + Number(time.slice(3, 5));
+const h = (time: string) => time.replace(':', 'h');
 
 /** Heure locale de la boutique, indépendante du fuseau du visiteur. */
 export function parisTime(now: Date = new Date()): { day: number; minutes: number } {
-  const parts = new Intl.DateTimeFormat('fr-FR', {
+  const parts = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'Europe/Paris',
     weekday: 'short',
     hour: '2-digit',
     minute: '2-digit',
-    hour12: false,
+    hourCycle: 'h23',
   }).formatToParts(now);
-  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? '00';
-  const map: Record<string, number> = { dim: 0, lun: 1, mar: 2, mer: 3, jeu: 4, ven: 5, sam: 6 };
-  const day = map[get('weekday').slice(0, 3).toLowerCase()] ?? 0;
-  return { day, minutes: Number(get('hour')) * 60 + Number(get('minute')) };
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? '0';
+  const map: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  return { day: map[get('weekday')] ?? 0, minutes: Number(get('hour')) * 60 + Number(get('minute')) };
 }
 
+/** Statut calculé uniquement à partir des horaires habituels configurés. */
 export function getBusinessStatus(now: Date = new Date()): BusinessStatus {
   const { day, minutes } = parisTime(now);
-  const today = hoursByDay(day);
+  const intervals = hoursByDay(day)?.intervals ?? [];
+  const today = formatIntervals(intervals);
 
-  if (today) {
-    for (const { open, close } of today.intervals) {
-      if (minutes < toMinutes(open)) return { status: 'closed', label: `Ouvre à ${open}`, opensAt: open, day };
-      if (minutes < toMinutes(close)) return { status: 'open', label: `Ouvert · ferme à ${close}`, closesAt: close, day };
-    }
+  for (const { open, close } of intervals) {
+    if (minutes < toMinutes(open)) return { open: false, day, today, detail: `ouvre à ${h(open)}` };
+    if (minutes < toMinutes(close)) return { open: true, day, today, detail: `jusqu’à ${h(close)}` };
   }
 
-  // Prochaine ouverture : on avance jour par jour, dimanche/lundi inclus.
   for (let i = 1; i <= 7; i++) {
     const next = openingHours.find((d) => d.day === (day + i) % 7);
     const first = next?.intervals[0];
-    if (first) {
-      const prefix = i === 1 ? 'Ouvre demain à' : `Ouvre ${next!.label.toLowerCase()} à`;
-      return { status: 'closed', label: `${prefix} ${first.open}`, opensAt: first.open, day };
+    if (next && first) {
+      const when = i === 1 ? 'demain' : next.label.toLowerCase();
+      return { open: false, day, today, detail: `réouverture ${when} à ${h(first.open)}` };
     }
   }
-  return { status: 'closed', label: 'Fermé', day };
+  return { open: false, day, today, detail: '' };
 }

@@ -1,59 +1,55 @@
-import type { Metadata } from 'next';
-import { PageHero } from '@/components/sections/PageHero';
-import { PracticalInfo } from '@/components/sections/PracticalInfo';
-import { ContactForm } from '@/components/forms/ContactForm';
-import { SectionMark } from '@/components/ui/SectionMark';
-import { FinalCTA } from '@/components/sections/FinalCTA';
+import Link from 'next/link';
 import { media } from '@/data/media';
 import { site } from '@/data/site';
+import { JsonLd } from '@/components/ui/JsonLd';
+import { Practical } from '@/components/sections/Practical';
+import { ContactForm } from '@/components/forms/ContactForm';
+import { MapEmbed } from '@/components/contact/MapEmbed';
+import { pageMetadata } from '@/lib/seo';
 import { breadcrumbSchema } from '@/lib/schema';
 
-export const metadata: Metadata = {
-  title: 'Contact & horaires',
+export const metadata = pageMetadata({
+  title: 'Contact, horaires et accès',
   description:
-    'Le Duo d’Artisans, 7 Rue Anatole France, 60290 Rantigny. Téléphone 03 44 28 55 61. Horaires, itinéraire et formulaire de contact.',
-  alternates: { canonical: '/contact' },
-};
+    'Le Duo d’Artisans, 7 rue Anatole France, 60290 Rantigny — 03 44 28 55 61. Horaires d’ouverture, itinéraire, plan d’accès et formulaire de contact.',
+  path: '/contact',
+  image: media.facade,
+});
 
 export default function ContactPage() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
-            breadcrumbSchema([{ name: 'Accueil', path: '/' }, { name: 'Contact', path: '/contact' }]),
-          ),
-        }}
-      />
+      <JsonLd data={breadcrumbSchema([{ name: 'Contact', path: '/contact' }])} />
 
-      <PageHero
-        crumb="Contact"
-        title={<>Une envie ? Une question ?<br />Passez nous voir.</>}
-        lede={`${site.address.street}, ${site.address.postalCode} ${site.address.city} — ${site.phone.display}`}
-        image={media.facade}
-        position="center 48%"
-      />
-
-      <PracticalInfo />
-
-      <section className="section bg-paper">
-        <div className="container info-grid">
+      <section className="opening-type opening-type--compact" aria-labelledby="contact-title">
+        <div className="wrap opening-type-grid">
           <div>
-            <SectionMark>Écrire à la boutique</SectionMark>
-            <h2 className="display d-m reveal" data-delay=".06s">
-              Pour tout le reste,<br />ce formulaire suffit.
-            </h2>
-            <p className="lede reveal" data-delay=".12s" style={{ marginTop: 22 }}>
-              Question sur un produit, une commande, une disponibilité : écrivez-nous, la boutique
-              vous répond. Pour une réponse immédiate, le téléphone reste le plus rapide.
+            <p className="folio">Contact</p>
+            <h1 id="contact-title" className="t-xxl">Passez<br /><em>nous voir.</em></h1>
+          </div>
+          <p className="t-lead">
+            Le plus simple reste d’appeler la boutique au{' '}
+            <a className="lnk" href={site.phone.href}>{site.phone.display}</a> ou de pousser la porte.
+            Pour le reste, le formulaire est plus bas.
+          </p>
+        </div>
+      </section>
+
+      <Practical title={false} />
+
+      <section className="contact-more" aria-labelledby="write-title">
+        <div className="wrap contact-grid">
+          <div>
+            <h2 id="write-title" className="t-l">Écrire<br /><em>à la boutique.</em></h2>
+            <p className="t-body">
+              Une question sur un produit, une disponibilité ? Écrivez-nous, la boutique vous répond.
+              Pour une commande, utilisez plutôt la <Link className="lnk" href="/commandes">demande de commande</Link>.
             </p>
+            <MapEmbed />
           </div>
           <ContactForm />
         </div>
       </section>
-
-      <FinalCTA />
     </>
   );
 }

@@ -1,59 +1,55 @@
 import Link from 'next/link';
-import { site, fullAddress } from '@/data/site';
-
-const columns = [
-  { title: 'La Maison', links: [
-    { label: 'Notre maison', href: '/la-maison' },
-    { label: 'Savoir-faire', href: '/savoir-faire' },
-    { label: 'Galerie', href: '/nos-creations#galerie' },
-  ]},
-  { title: 'Nos créations', links: [
-    { label: 'Boulangerie', href: '/nos-creations?c=boulangerie' },
-    { label: 'Pâtisserie', href: '/nos-creations?c=patisserie' },
-    { label: 'Snacking', href: '/nos-creations?c=snacking' },
-    { label: 'Gourmandises', href: '/nos-creations?c=gourmandises' },
-  ]},
-  { title: 'Infos', links: [
-    { label: 'Horaires', href: '/contact#horaires' },
-    { label: 'Adresse', href: '/contact' },
-    { label: 'Commandes', href: '/commandes' },
-    { label: 'Actualités', href: '/actualites' },
-  ]},
-  { title: 'Légal', links: [
-    { label: 'Mentions légales', href: '/mentions-legales' },
-    { label: 'Politique de confidentialité', href: '/politique-confidentialite' },
-    { label: 'Gestion des cookies', href: '/politique-confidentialite#cookies' },
-  ]},
-];
+import { nav, site } from '@/data/site';
+import { openingHours, weekOrder, formatIntervals } from '@/data/opening-hours';
 
 export function Footer() {
   return (
     <footer className="footer">
-      <div className="container">
-        <div className="footer-top">
-          <div className="brand-f">
-            <b>Le Duo d’Artisans</b>
-            <p>Deux savoir-faire.<br />Une même passion.</p>
+      <div className="wrap">
+        <p className="footer-mark" aria-hidden="true">Le Duo <em>d’Artisans</em></p>
+
+        <div className="footer-grid">
+          <div>
+            <h2 className="footer-h">La boutique</h2>
+            <p>
+              {site.address.street}
+              <br />
+              {site.address.postalCode} {site.address.city}
+            </p>
+            <p><a className="lnk" href={site.phone.href}>{site.phone.display}</a></p>
+            <p><a className="lnk" href={site.maps.directions} target="_blank" rel="noopener noreferrer">Itinéraire</a></p>
           </div>
-          {columns.map((col) => (
-            <div key={col.title}>
-              <h4>{col.title}</h4>
-              <ul>
-                {col.links.map((l) => (
-                  <li key={l.label}><Link href={l.href}>{l.label}</Link></li>
-                ))}
-              </ul>
-            </div>
-          ))}
+
+          <div>
+            <h2 className="footer-h">Horaires habituels</h2>
+            <dl className="footer-hours">
+              {weekOrder.map((day) => {
+                const d = openingHours.find((o) => o.day === day)!;
+                return (
+                  <div key={day}>
+                    <dt>{d.label}</dt>
+                    <dd>{formatIntervals(d.intervals)}</dd>
+                  </div>
+                );
+              })}
+            </dl>
+          </div>
+
+          <nav aria-label="Pied de page">
+            <h2 className="footer-h">La maison</h2>
+            <ul>
+              {nav.map((item) => (
+                <li key={item.href}><Link href={item.href}>{item.label}</Link></li>
+              ))}
+            </ul>
+          </nav>
         </div>
-        <div className="footer-bottom">
+
+        <div className="footer-legal">
+          <p>{site.legal.name} · {site.legal.form} · SIREN {site.legal.siren}</p>
           <p>
-            {site.legal.name} — {site.legal.form} · SIREN {site.legal.siren}
-            <br />{fullAddress}
-          </p>
-          <p>
-            {site.activities.slice(0, 5).join(' · ')}
-            <br />Logo officiel à intégrer — composition typographique provisoire.
+            <Link href="/mentions-legales">Mentions légales</Link>
+            <Link href="/politique-confidentialite">Confidentialité</Link>
           </p>
         </div>
       </div>

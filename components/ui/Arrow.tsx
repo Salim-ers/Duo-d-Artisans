@@ -1,8 +1,9 @@
-/** Flèche discrète utilisée dans les CTA (4px de décalage au survol, géré en CSS). */
-export function Arrow({ className = 'arw' }: { className?: string }) {
+/** Flèche fine, dessinée pour la typographie du site (pas une icône de bibliothèque). */
+export function Arrow({ direction = 'right' }: { direction?: 'right' | 'left' | 'up-right' }) {
+  const rotate = direction === 'left' ? 180 : direction === 'up-right' ? -45 : 0;
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-      <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+    <svg className="arrow" viewBox="0 0 22 10" aria-hidden="true" style={rotate ? { transform: `rotate(${rotate}deg)` } : undefined}>
+      <path d="M0 5h20M16 1l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.2" />
     </svg>
   );
 }

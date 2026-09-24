@@ -1,24 +1,40 @@
 import { site } from '@/data/site';
+import { media } from '@/data/media';
 import { openingHours } from '@/data/opening-hours';
 
-const EN_DAYS: Record<number, string> = {
-  0: 'Sunday', 1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday', 6: 'Saturday',
-};
+const EN_DAYS: Record<number, string> = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-/** JSON-LD LocalBusiness / Bakery — uniquement des données vérifiées. */
+/** Regroupe les jours aux horaires identiques (une spécification par plage). */
+function hoursSpecification() {
+  const groups = new Map<string, string[]>();
+  for (const d of openingHours) {
+    for (const i of d.intervals) {
+      const key = `${i.open}-${i.close}`;
+      groups.set(key, [...(groups.get(key) ?? []), EN_DAYS[d.day] ?? '']);
+    }
+  }
+  return [...groups].map(([key, days]) => {
+    const [opens, closes] = key.split('-');
+    return { '@type': 'OpeningHoursSpecification', dayOfWeek: days, opens, closes };
+  });
+}
+
+/**
+ * JSON-LD Bakery (sous-type de LocalBusiness) — uniquement des données vérifiées :
+ * nom, adresse, téléphone, horaires. Pas de note, pas de prix, pas de GPS non vérifié.
+ */
 export function bakerySchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'Bakery',
-    '@id': `${site.url}/#bakery`,
+    '@id': `${site.url}/#boulangerie`,
     name: site.name,
     legalName: site.legal.name,
     description: site.shortDescription,
     url: site.url,
-    telephone: site.phone.international.replace(/\s/g, ''),
-    priceRange: '€',
-    servesCuisine: ['Boulangerie', 'Pâtisserie', 'Viennoiserie', 'Snacking'],
-    image: `${site.url}/images/facade/le-duo-artisans-rantigny-facade.webp`,
+    telephone: site.phone.international,
+    image: `${site.url}${media.facade.src}`,
+    hasMap: site.googleBusinessUrl ?? site.maps.search,
     address: {
       '@type': 'PostalAddress',
       streetAddress: site.address.street,
@@ -28,22 +44,20 @@ export function bakerySchema() {
       addressCountry: site.address.countryCode,
     },
     ...(site.geo ? { geo: { '@type': 'GeoCoordinates', latitude: site.geo.lat, longitude: site.geo.lng } } : {}),
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: site.reviews.rating,
-      reviewCount: site.reviews.count,
-      bestRating: 5,
-    },
-    openingHoursSpecification: openingHours
-      .filter((d) => d.intervals.length > 0)
-      .flatMap((d) =>
-        d.intervals.map((i) => ({
-          '@type': 'OpeningHoursSpecification',
-          dayOfWeek: EN_DAYS[d.day],
-          opens: i.open,
-          closes: i.close,
-        })),
-      ),
+    areaServed: { '@type': 'City', name: site.address.city },
+    openingHoursSpecification: hoursSpecification(),
+  };
+}
+
+export function websiteSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${site.url}/#site`,
+    name: site.name,
+    url: site.url,
+    inLanguage: 'fr-FR',
+    publisher: { '@id': `${site.url}/#boulangerie` },
   };
 }
 
@@ -51,11 +65,14 @@ export function breadcrumbSchema(items: { name: string; path: string }[]) {
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
-    itemListElement: items.map((item, i) => ({
+    itemListElement: [{ name: 'Accueil', path: '/' }, ...items].map((item, i) => ({
       '@type': 'ListItem',
       position: i + 1,
       name: item.name,
-      item: `${site.url}${item.path}`,
+      item: `${site.url}${item.path === '/' ? '' : item.path}`,
     })),
   };
 }
+
+/** Sérialisation sûre pour <script type="application/ld+json"> (pas d'injection de </script>). */
+export const jsonLd = (data: unknown) => JSON.stringify(data).replace(/</g, '\\u003c');
