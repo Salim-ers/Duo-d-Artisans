@@ -5,6 +5,13 @@
  * ------------------------------------------------------------------
  */
 
+/** Variable vide ou sans protocole → URL valide (sinon `new URL()` fait échouer le build). */
+function resolveSiteUrl(raw: string | undefined): string {
+  const value = raw?.trim();
+  if (!value) return 'https://www.leduodartisans.fr';
+  return /^https?:\/\//.test(value) ? value : `https://${value}`;
+}
+
 export const site = {
   name: "Le Duo d'Artisans",
   legalName: 'LE DUO D’ARTISANS',
@@ -12,7 +19,7 @@ export const site = {
   shortDescription:
     'Boulangerie-pâtisserie artisanale au 7 Rue Anatole France à Rantigny : pains, viennoiseries, pâtisseries, snacking et créations gourmandes.',
   /** Remplacer par le domaine définitif avant la mise en ligne. */
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.leduodartisans.fr',
+  url: resolveSiteUrl(process.env.NEXT_PUBLIC_SITE_URL),
 
   phone: { display: '03 44 28 55 61', href: 'tel:+33344285561', international: '+33 3 44 28 55 61' },
 
