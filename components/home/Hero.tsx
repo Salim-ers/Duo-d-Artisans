@@ -43,10 +43,10 @@ export function Hero() {
       <div className="hero-stage">
         <div className="hero-media">
           <Photo
-            image={media.facade}
+            image={media.facadeHd}
             sizes="(max-aspect-ratio: 3/2) 150vh, 100vw"
             priority
-            quality={82}
+            quality={90}
             position="50% 38%"
             reveal={false}
             className="hero-photo"

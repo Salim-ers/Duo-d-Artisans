@@ -17,6 +17,13 @@ export const media = {
     width: 1672,
     height: 941,
   },
+  /** Façade agrandie ×2 (lanczos + accentuation) pour le hero plein écran. */
+  facadeHd: {
+    src: '/images/facade/le-duo-artisans-rantigny-facade-hd.webp',
+    alt: "Façade bleue de la boulangerie Le Duo d'Artisans, 7 rue Anatole France à Rantigny",
+    width: 3344,
+    height: 1882,
+  },
   baguettesTradition: {
     src: '/images/boulangerie/le-duo-artisans-baguettes-tradition.webp',
     alt: 'Deux baguettes croustillantes posées l’une sur l’autre',

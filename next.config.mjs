@@ -39,9 +39,9 @@ const nextConfig = {
   poweredByHeader: false,
   images: {
     formats: ['image/avif', 'image/webp'],
-    deviceSizes: [360, 480, 640, 828, 1080, 1280, 1440, 1672],
+    deviceSizes: [360, 480, 640, 828, 1080, 1280, 1440, 1672, 1920, 2560, 3344],
     imageSizes: [160, 256, 384],
-    qualities: [75, 82],
+    qualities: [75, 82, 90],
     minimumCacheTTL: 2678400,
   },
   async headers() {

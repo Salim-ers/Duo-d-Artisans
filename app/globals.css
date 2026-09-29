@@ -357,7 +357,7 @@ a:hover > .arrow[style] { transform: rotate(-45deg) translateX(3px); }
 }
 .hero-photo { position: absolute !important; inset: 0; background: var(--nuit); }
 .hero-photo img { animation: hero-zoom 2.8s var(--ease-out) 0.1s both; }
-@keyframes hero-zoom { from { transform: scale(1.32); } to { transform: scale(1.04); } }
+@keyframes hero-zoom { from { transform: scale(1.32); } to { transform: none; } }
 .hero-veil {
   position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background:
@@ -448,7 +448,7 @@ a:hover > .arrow[style] { transform: rotate(-45deg) translateX(3px); }
   @media (prefers-reduced-motion: no-preference) {
     .hero-photo { animation: hero-par linear both; animation-timeline: scroll(root); animation-range: 0 100vh; }
     .hero-content { animation: hero-lift linear both; animation-timeline: scroll(root); animation-range: 0 65vh; }
-    @keyframes hero-par { to { transform: translate3d(0, 22%, 0) scale(1.06); } }
+    @keyframes hero-par { to { transform: translate3d(0, 22%, 0); } }
     @keyframes hero-lift { to { transform: translate3d(0, -10vh, 0); opacity: 0; } }
   }
 }
