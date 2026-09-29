@@ -6,7 +6,7 @@ const gestures = ['Pétrir', 'Façonner', 'Fermenter', 'Cuire', 'Dresser'];
 /** « Le matin commence ici » : on entre dans le fournil. */
 export function Morning() {
   return (
-    <section className="morning" aria-labelledby="morning-title">
+    <section className="morning" id="le-matin" aria-labelledby="morning-title">
       <div className="wrap morning-grid">
         <p className="morning-vertical" aria-hidden="true">Chaque matin recommence ici</p>
 
