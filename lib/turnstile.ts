@@ -5,8 +5,6 @@ import 'server-only';
  * Inactif tant que TURNSTILE_SECRET_KEY n'est pas défini côté serveur
  * (et NEXT_PUBLIC_TURNSTILE_SITE_KEY, clé publique par nature, côté navigateur).
  */
-export const turnstileEnabled = () => Boolean(process.env.TURNSTILE_SECRET_KEY);
-
 export async function verifyTurnstile(token: string | null, ip: string): Promise<boolean> {
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) return true;

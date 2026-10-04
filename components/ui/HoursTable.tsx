@@ -1,24 +1,28 @@
-import { openingHours, weekOrder, formatIntervals } from '@/data/opening-hours';
+'use client';
 
-/**
- * Horaires rendus en HTML côté serveur : lisibles sans JavaScript.
- * Le jour courant est surligné par CSS grâce à l'attribut data-today posé par Motion.tsx.
- */
-export function HoursTable({ caption = 'Horaires habituels' }: { caption?: string }) {
+import { dayLabels, formatIntervals, weekOrder, type Interval } from '@/data/opening-hours';
+import { useParisDay } from './OpenNow';
+
+/** Horaires rendus en HTML (lisibles sans JavaScript) ; le jour courant est surligné après hydratation. */
+export function HoursTable({ week, caption = 'Horaires', note }: { week: Interval[][]; caption?: string; note?: string | null }) {
+  const today = useParisDay();
   return (
-    <table className="hours">
-      <caption>{caption}</caption>
-      <tbody>
-        {weekOrder.map((day) => {
-          const entry = openingHours.find((d) => d.day === day)!;
-          return (
-            <tr key={day} data-day={day} data-closed={entry.intervals.length === 0 || undefined}>
-              <th scope="row">{entry.label}</th>
-              <td>{formatIntervals(entry.intervals)}</td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+    <>
+      <table className="hours">
+        <caption>{caption}</caption>
+        <tbody>
+          {weekOrder.map((day) => {
+            const intervals = week[day] ?? [];
+            return (
+              <tr key={day} data-closed={intervals.length === 0 || undefined} data-today={today === day || undefined}>
+                <th scope="row">{dayLabels[day]}</th>
+                <td>{formatIntervals(intervals)}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      {note && <p className="hours-note">{note}</p>}
+    </>
   );
 }

@@ -1,17 +1,35 @@
-import { site } from '@/data/site';
+'use client';
 
-/** Barre d'actions mobile : visible en permanence sous 820 px, sans JavaScript. */
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { BagIcon, HomeIcon, PinIcon, ShopIcon } from '@/components/ui/Icons';
+import { useCart } from '@/components/shop/CartProvider';
+import { CartCount } from './Header';
+
+/** Barre basse sur téléphone : les quatre gestes essentiels, toujours à portée de pouce. */
 export function MobileBar() {
+  const pathname = usePathname();
+  const { count, bump, setOpen, ready } = useCart();
+  const current = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href)) || undefined;
   return (
-    <div className="mobile-bar">
-      <a href={site.phone.href}>
-        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6.2 2.5 8.4 6 6.9 7.6a10.6 10.6 0 0 0 5.5 5.5l1.6-1.5 3.5 2.2-.8 3.1c-.2.6-.8 1-1.4.9C8.6 17.3 2.7 11.4 2.2 4.7c0-.6.3-1.2.9-1.4z" fill="none" stroke="currentColor" strokeWidth="1.2" /></svg>
-        Appeler
-      </a>
-      <a href={site.maps.directions} target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 18s6-5.4 6-10a6 6 0 1 0-12 0c0 4.6 6 10 6 10Z" fill="none" stroke="currentColor" strokeWidth="1.2" /><circle cx="10" cy="8" r="2" fill="none" stroke="currentColor" strokeWidth="1.2" /></svg>
-        Itinéraire
-      </a>
-    </div>
+    <nav className="mobile-bar" aria-label="Raccourcis">
+      <Link href="/" aria-current={current('/') && 'page'}>
+        <HomeIcon />
+        Accueil
+      </Link>
+      <Link href="/commander" aria-current={current('/commander') && 'page'}>
+        <ShopIcon />
+        Commander
+      </Link>
+      <button type="button" onClick={() => setOpen(true)} data-cart-target aria-label={`Panier, ${count} article${count > 1 ? 's' : ''}`}>
+        <BagIcon />
+        Panier
+        {ready && <CartCount count={count} bump={bump} />}
+      </button>
+      <Link href="/contact" aria-current={current('/contact') && 'page'}>
+        <PinIcon />
+        Infos
+      </Link>
+    </nav>
   );
 }

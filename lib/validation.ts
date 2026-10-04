@@ -1,77 +1,115 @@
-import { z } from 'zod';
-import { parisToday } from './dates';
-import { occasions, creationTypes, subjects, LIMITS } from './form-options';
-
 /**
  * Schémas de validation SERVEUR (source de vérité).
- * Le navigateur ne fait que des contrôles de confort (attributs HTML) :
- * toute donnée est revalidée ici avant d'être envoyée par e-mail.
+ * Le navigateur ne fait que des contrôles de confort : tout est revalidé ici.
  */
+import { z } from 'zod';
 
 /** Supprime caractères de contrôle et espaces superflus (conserve les retours à la ligne). */
-const clean = (value: string) =>
+export const clean = (value: string) =>
   value
     .normalize('NFC')
-    .replace(/[\u0000-\u0009\u000B-\u001F\u007F\u200B-\u200F\u2028\u2029]/g, '')
+    .replace(/[\u0000-\u0009\u000B-\u001F\u007F\u200b-\u200f\u2028\u2029]/g, '')
     .replace(/[ \t]+/g, ' ')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 
-const text = (max: number) => z.string().max(max * 2).transform(clean).pipe(z.string().max(max));
+export const text = (max: number, min = 0, label = 'Ce champ') =>
+  z
+    .string({ invalid_type_error: `${label} est invalide.` })
+    .max(max * 2)
+    .transform(clean)
+    .pipe(
+      z
+        .string()
+        .min(min, min ? `${label} est obligatoire.` : undefined)
+        .max(max, `${label} : ${max} caractères maximum.`),
+    );
 
-const name = (label: string) =>
-  text(LIMITS.name).pipe(
-    z
-      .string()
-      .min(1, `Indiquez votre ${label}.`)
-      .regex(/^[\p{L}\p{M}' ’.-]+(?: [\p{L}\p{M}' ’.-]+)*$/u, `Votre ${label} contient des caractères inattendus.`),
+export const optText = (max: number, label?: string) =>
+  z
+    .string()
+    .optional()
+    .nullable()
+    .transform((v) => (v ? clean(v) : ''))
+    .pipe(z.string().max(max, `${label ?? 'Ce champ'} : ${max} caractères maximum.`))
+    .transform((v) => v || null);
+
+export const personName = (label: string) =>
+  text(60, 1, label).pipe(
+    z.string().regex(/^[\p{L}\p{M}' ’.-]+(?: [\p{L}\p{M}' ’.-]+)*$/u, `Votre ${label.toLowerCase()} contient des caractères inattendus.`),
   );
 
-const phone = z
+export const phone = z
   .string()
   .max(40)
   .transform((v) => v.replace(/[\s.\-()]/g, ''))
-  .pipe(z.string().regex(/^(?:\+|00)?\d{9,15}$/, 'Numéro de téléphone invalide.'));
+  .pipe(z.string().regex(/^(\+\d{9,15}|0[1-9]\d{8})$/, 'Numéro de téléphone invalide.'));
 
-const email = z.string().max(254).trim().toLowerCase().pipe(z.string().email('Adresse e-mail invalide.'));
-const optionalEmail = z.union([z.literal(''), email]).optional().transform((v) => v || undefined);
+export const email = z.string().max(160).trim().toLowerCase().pipe(z.string().email('Adresse e-mail invalide.'));
+export const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date invalide.');
+export const hhmm = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Heure invalide.');
 
-const futureDate = z
-  .string()
-  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Choisissez une date.')
-  .refine((d) => !Number.isNaN(Date.parse(d)), 'Date invalide.')
-  .refine((d) => d >= parisToday(), 'La date doit être à venir.')
-  .refine((d) => Date.parse(d) - Date.parse(parisToday()) <= 366 * 86_400_000, 'Date trop éloignée.');
+export const contactFields = {
+  firstName: personName('Prénom'),
+  lastName: personName('Nom'),
+  email,
+  phone,
+};
 
-/** Champ piège : invisible pour un humain, rempli par les robots. */
-const honeypot = z.string().max(500).optional();
+export const cartLine = z.object({
+  productId: z.string().uuid(),
+  variantId: z.string().uuid().nullable(),
+  flavorId: z.string().uuid().nullable(),
+  extraIds: z.array(z.string().uuid()).max(10),
+  quantity: z.number().int().min(1).max(99),
+});
+export type CartLineInput = z.infer<typeof cartLine>;
 
-export const orderSchema = z.object({
-  occasion: z.enum(occasions, { message: 'Choisissez une occasion.' }),
-  personnes: z.coerce
+export const orderInput = z.object({
+  items: z.array(cartLine).min(1, 'Votre panier est vide.').max(40),
+  pickupDate: isoDate,
+  pickupTime: hhmm,
+  ...contactFields,
+  note: optText(500, 'La remarque'),
+  paymentMethod: z.enum(['online', 'on_site'], { message: 'Choisissez un mode de paiement.' }),
+  promoCode: optText(40),
+  acceptTerms: z.literal(true, { errorMap: () => ({ message: 'Merci d’accepter les conditions de vente.' }) }),
+});
+export type OrderInput = z.input<typeof orderInput>;
+
+/** Demande personnalisée : jamais une commande acceptée d'office. */
+export const customInput = z.object({
+  type: text(60, 1, 'Le type de création'),
+  desiredDate: isoDate,
+  servings: z.coerce
     .number({ message: 'Indiquez un nombre de personnes.' })
     .int('Nombre entier attendu.')
     .min(1, 'Au moins 1 personne.')
-    .max(LIMITS.people, 'Au-delà de 300 personnes, appelez la boutique.'),
-  date: futureDate,
-  creation: z.enum(creationTypes, { message: 'Choisissez un type de création.' }),
-  prenom: name('prénom'),
-  nom: name('nom'),
-  telephone: phone,
-  email: optionalEmail,
-  message: text(LIMITS.message).optional().transform((v) => v || undefined),
-  site_web: honeypot,
+    .max(300, 'Au-delà de 300 personnes, appelez la boutique.'),
+  flavors: optText(300, 'Les saveurs'),
+  theme: optText(200, 'Le thème'),
+  inscription: optText(120, 'Le texte'),
+  budget: optText(60, 'Le budget'),
+  comment: optText(2000, 'Le commentaire'),
+  ...contactFields,
 });
 
-export const contactSchema = z.object({
-  prenom: name('prénom'),
-  nom: name('nom'),
-  telephone: z.union([z.literal(''), phone]).optional().transform((v) => v || undefined),
+export const contactInput = z.object({
+  name: text(120, 1, 'Votre nom'),
   email,
-  sujet: z.enum(subjects, { message: 'Choisissez un sujet.' }),
-  message: text(LIMITS.contactMessage).pipe(z.string().min(10, 'Votre message est un peu court.')),
-  site_web: honeypot,
+  phone: z.union([z.literal(''), phone]).optional().transform((v) => v || null),
+  message: text(3000, 10, 'Le message'),
 });
 
-export type OrderInput = z.infer<typeof orderSchema>;
-export type ContactInput = z.infer<typeof contactSchema>;
+/** Premier message d'erreur lisible. */
+export const firstError = (e: z.ZodError) => e.issues[0]?.message ?? 'Données invalides.';
+
+/** Erreurs par champ (première par champ). */
+export const fieldErrors = (e: z.ZodError) => {
+  const out: Record<string, string> = {};
+  for (const i of e.issues) {
+    const k = String(i.path[0] ?? '_');
+    out[k] ??= i.message;
+  }
+  return out;
+};

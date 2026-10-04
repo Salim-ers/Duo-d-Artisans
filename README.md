@@ -1,71 +1,118 @@
-# Le Duo d’Artisans — site vitrine
+# Le Duo d’Artisans — site, commande en ligne et gestion
 
-Boulangerie-pâtisserie **Le Duo d’Artisans**, 7 rue Anatole France, 60290 Rantigny.
-Next.js 15 (App Router, rendu statique) · React 19 · TypeScript strict · CSS natif · Zod.
+Boulangerie · Pâtisserie · Viennoiserie · Snacking — 7 rue Anatole France, 60290 Rantigny.
 
-## Démarrer
+Une seule application Next.js, deux expériences :
+
+- **Site public** (4 pages : Accueil, Commander, Créations, Contact) — photographie, typographie, mouvement.
+  Catalogue filtrable, panier (tiroir / feuille mobile), **retrait en boutique sur créneau**, paiement
+  **Stripe Checkout** ou **en boutique**, **commande personnalisée** (une demande, jamais acceptée d’office),
+  galerie avec visionneuse, infos pratiques avec statut d’ouverture calculé en direct.
+- **Gestion `/admin`** — tableau de bord du jour, commandes (statut rapide + panneau détaillé), **mode production
+  tablette**, **feuille de production** (impression, PDF), planning jour / semaine, commandes personnalisées et devis,
+  clients (RGPD), produits, catégories, stock, événements saisonniers, promotions, messages, galerie,
+  statistiques, paramètres, équipe et rôles, notifications (son, push).
+
+Stack : Next.js 15 (App Router) · React 19 · TypeScript strict · CSS natif · PostgreSQL (Neon) via Drizzle ORM ·
+PGlite en local · Stripe · Resend · Zod · jose / bcrypt · web-push · pdf-lib.
+
+## Démarrer en local (aucun compte externe)
 
 ```bash
 npm install
 npm run dev            # http://localhost:3000
 npm run build          # vérifie les images (prebuild) puis construit
-npm run check:images   # inventaire et validation des photographies seuls
 npm run typecheck
+npm run db:generate    # après modification de lib/db/schema.ts
+npm run db:reset-local # repart d’une base locale vierge
 ```
+
+Sans `DATABASE_URL`, une vraie base PostgreSQL embarquée (PGlite) est créée dans `.data/pglite`, migrée et remplie.
+Gestion : http://localhost:3000/admin — `admin@duo.local` / `boulangerie-dev` (compte de développement uniquement).
+
+## Mise en production (Vercel + Neon, gratuit)
+
+1. **Base** : Vercel → projet → **Storage** → **Create Database** → **Neon** (offre Free, région Europe) → *Connect*.
+   `DATABASE_URL` et `DATABASE_URL_UNPOOLED` sont ajoutées automatiquement.
+2. **Variables** : `ADMIN_EMAIL`, `ADMIN_PASSWORD` (10 caractères min.), `AUTH_SECRET` (recommandé),
+   `NEXT_PUBLIC_SITE_URL` (domaine définitif). Voir `.env.example`.
+3. **Redéployer**. Au premier démarrage : tables créées, Row Level Security activé, familles, galerie et horaires
+   insérés, compte super administrateur créé.
+4. **Stripe** (facultatif) : `STRIPE_SECRET_KEY` + webhook `https://<domaine>/api/stripe/webhook` → `STRIPE_WEBHOOK_SECRET`.
+5. **E-mails** (facultatif) : `RESEND_API_KEY`, `EMAIL_FROM`, `STAFF_EMAIL`.
+6. **Push tablette** (facultatif) : `npx web-push generate-vapid-keys` → `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`.
+7. Dans **Gestion → Paramètres** : saisir les vrais produits, vérifier horaires, créneaux, paiements, avis Google,
+   puis **désactiver le mode démonstration**.
+
+Sans base permanente (Vercel sans Neon), le site reste visible mais la commande en ligne, les demandes et le contact
+sont fermés, et la gestion l’indique en rouge.
+
+## Mode démonstration — ne rien inventer
+
+Toute donnée fictive porte `is_demo = true` : produits (vraies photos, **prix d’exemple**), commandes, clients
+(`@example.com`), demandes, messages, notifications. Elles sont signalées « Exemple » partout et **disparaissent
+entièrement** (site et gestion) dès que le mode démonstration est désactivé. Aucun allergène, avis, promotion ou
+campagne n’est inventé. Les paramètres jamais enregistrés sont marqués « Valeurs par défaut — à confirmer ».
 
 ## Où modifier quoi
 
-| Besoin | Fichier |
+| Besoin | Où |
 | --- | --- |
-| Nom, téléphone, adresse, liens Google, mentions légales | `data/site.ts` |
-| Horaires (affichage, statut ouvert/fermé, JSON-LD) | `data/opening-hours.ts` |
-| Note et nombre d’avis Google (saisis à la main) | `data/reviews.ts` |
-| Photographies (chemin, texte alternatif, dimensions réelles) | `data/media.ts` |
-| Créations, filtres, catalogue de l’accueil | `data/products.ts` |
-| Couleurs, typographie, espacements | variables en tête de `app/globals.css` |
+| Produits, prix, formats, saveurs, suppléments, allergènes, jours, délais | Gestion → Produits |
+| Familles et leur ordre (= ordre de la page Commander) | Gestion → Catégories |
+| Stock, seuils d’alerte | Gestion → Stock |
+| Horaires d’ouverture, créneaux, capacité, délais, paiements | Gestion → Paramètres |
+| Fermetures et horaires exceptionnels | Gestion → Planning |
+| Photos de la galerie et de l’accueil | Gestion → Galerie |
+| Collection saisonnière sur l’accueil | Gestion → Événements |
+| Codes promo, remises automatiques, produit mis en avant | Gestion → Promotions |
+| Note et nombre d’avis Google | Gestion → Paramètres → Avis |
+| Nom, téléphone, adresse, mentions légales | `data/site.ts` |
+| Photographies d’origine (chemins, dimensions vérifiées au build) | `data/media.ts`, `public/images/` |
+| Couleurs, typographie | variables en tête de `app/globals.css` (site) et `app/admin/admin.css` |
 
-## Photographies
+## Structure
 
-Toutes les photos sont servies depuis `public/images/` (aucun lien externe temporaire).
-`scripts/check-images.mjs` s’exécute avant chaque build et **fait échouer le build** si une image
-référencée est absente, mal nommée (casse comprise), hébergée sur un service temporaire, ou si ses
-dimensions ne correspondent pas à celles déclarées dans `data/media.ts`.
+```
+app/(site)/            site public : accueil, commander, panier, commande, commande-personnalisee, creations, contact…
+app/(site)/actions.ts  Server Actions publiques (prix, créneaux, commande, demande, contact)
+app/admin/             gestion : login, (panel)/…, production (tablette), actions.ts
+app/api/               img (images publiques), admin/* (fichiers privés, pouls, push, PDF), stripe/webhook
+lib/db/                schéma Drizzle, connexion Neon / PGlite, données initiales, démonstration
+lib/orders.ts          commandes : prix, stock, créneaux, paiement, statuts      lib/custom.ts   demandes personnalisées
+lib/slots.ts           créneaux de retrait      lib/pricing.ts   prix et promotions      lib/admin.ts   requêtes de gestion
+lib/notify.ts          e-mails, tableau de bord, push      lib/hours.ts   statut d’ouverture (client et serveur)
+drizzle/               migrations SQL (dont RLS)
+```
 
-Pour ajouter une photo : la déposer dans `public/images/…`, puis déclarer `src`, `alt`, `width`,
-`height` dans `data/media.ts`. Les photos actuelles font au plus 1 672 px de large : le hero est
-volontairement cadré pour ne jamais les agrandir au-delà de leur définition.
+## Sécurité
 
-## Formulaires & sécurité
+- Gestion protégée côté serveur : middleware + session JWT signée (cookie `httpOnly`, `SameSite=Lax`) relue en base à
+  chaque requête ; rôles **SUPER_ADMIN / ADMIN / STAFF** revérifiés dans chaque action ; journal d’audit.
+- Mots de passe bcrypt ; limitation de débit (connexion, commande, demande, contact) ; pot de miel ; Turnstile facultatif.
+- Toutes les entrées revalidées avec Zod ; prix, stock, créneaux et promotions **recalculés côté serveur** dans une
+  transaction (verrou par créneau) : un créneau impossible ne peut jamais être réservé.
+- Images : type vérifié par signature binaire, 4 Mo max., compressées dans le navigateur ; photos clients privées.
+- Stripe Checkout (aucune donnée bancaire ne transite) ; webhook signé ; paiements abandonnés libérés après 45 min.
+- En-têtes : CSP, HSTS, X-Frame-Options, Referrer-Policy, Permissions-Policy, COOP. Secrets uniquement côté serveur.
 
-- Server Actions (`app/actions.ts`) : fonctionnent aussi sans JavaScript.
-- Validation complète côté serveur avec Zod (`lib/validation.ts`), champs bornés et nettoyés.
-- Honeypot, limitation de débit par IP (`lib/rate-limit.ts`), Cloudflare Turnstile facultatif.
-- Messages d’erreur génériques côté visiteur ; aucun détail technique renvoyé.
-- Envoi par l’API Resend, côté serveur uniquement. Variables : voir `.env.example`.
-  Sans `RESEND_API_KEY` et `CONTACT_TO_EMAIL`, les formulaires affichent une erreur générique
-  et invitent à appeler : ils ne prétendent jamais qu’une demande est partie.
-- En-têtes HTTP (CSP, HSTS, nosniff, Referrer-Policy, Permissions-Policy, frame-ancestors) :
-  `next.config.mjs`.
+## SEO local
 
-## SEO
+Métadonnées par page, canonical, Open Graph, `robots.txt`, `sitemap.xml`, JSON-LD `Bakery` (adresse, téléphone,
+horaires **enregistrés**, action de commande) et `Product` / `Offer` pour les vrais produits uniquement.
+Les anciennes adresses (`/la-maison`, `/savoir-faire`, `/nos-creations`, `/commandes`) redirigent en 301.
 
-Métadonnées par page (`lib/seo.ts`), canonical, Open Graph, Twitter, `sitemap.xml`, `robots.txt`,
-JSON-LD `Bakery` avec uniquement des données vérifiées (nom, adresse, téléphone, horaires) et fil
-d’Ariane sur les pages intérieures. La note Google n’est pas injectée dans le JSON-LD (avis
-auto-déclarés interdits par Google).
+## À obtenir ou valider par la boutique
 
-## À obtenir de la boutique
-
-- [ ] **Confirmer les horaires et le téléphone** : l’affichette visible sur la photo de façade
-      semble indiquer une coupure 13h30–15h30 et un numéro se terminant par 67.
-- [ ] **Photographies originales en haute définition** (≥ 2 000 px), notamment façade, fournil et gestes.
-- [ ] Logo officiel (SVG), si la boutique en possède un.
-- [ ] Lien direct de la fiche Google → `site.googleBusinessUrl`, et relevé daté des avis → `data/reviews.ts`.
-- [ ] Adresse e-mail de réception des demandes et domaine d’envoi (Resend).
-- [ ] Nom du directeur de la publication → `site.legal.director`.
+- [ ] Produits réels, prix, formats, **allergènes**, délais → Gestion, puis désactiver la démonstration.
+- [ ] Horaires (l’affichette en vitrine semble indiquer une coupure 13h30–15h30) et téléphone.
+- [ ] Réglages de créneaux (durée, capacité, délai minimal) — valeurs par défaut à confirmer.
+- [ ] Relevé daté des avis Google et lien de la fiche.
+- [ ] Relecture des conditions de vente (`/conditions-de-vente`) et des mentions légales (directeur de la publication).
+- [ ] Photographies originales en haute définition, logo officiel (SVG) si disponible.
 - [ ] Coordonnées GPS vérifiées → `site.geo`.
 
-## Ce qui n’est volontairement pas écrit
+## Note de développement
 
-Aucun prix, aucune récompense, aucun label, aucun témoignage, aucune ancienneté, aucune origine
-d’ingrédient, aucun nom d’artisan, aucune commande en ligne.
+Le dossier local contient une apostrophe (« Duo d’artisans ») qui casse le chargeur de métadonnées de Next.js :
+l’icône est servie depuis `public/icon.svg` et `robots.txt` / `sitemap.xml` sont des routes classiques.

@@ -101,7 +101,7 @@ for (const img of declared) {
 const tempHosts = /(cdninstagram|fbcdn|scontent[.-]|googleusercontent|lh\d\.google|ggpht|photos\.app\.goo\.gl|drive\.google\.com)/i;
 for (const file of ['app', 'components', 'data', 'lib'].flatMap((d) => (existsSync(join(root, d)) ? walk(join(root, d)) : []))) {
   const source = readFileSync(file, 'utf8');
-  for (const [, path] of source.matchAll(/['"`(](\/images\/[^'"`)\s]+)/g)) {
+  for (const [, path] of source.matchAll(/['"`(](\/images\/[^'"`)\s]+\.(?:webp|avif|jpe?g|png|svg|gif))/gi)) {
     if (!existsExact(path)) errors.push(`${relative(root, file)} : référence introuvable → ${path}`);
   }
   for (const [url] of source.matchAll(/https?:\/\/[^\s'"`)]+/g)) {

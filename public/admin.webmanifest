@@ -1,0 +1,10 @@
+{
+  "name": "Le Duo d'Artisans — Gestion",
+  "short_name": "Duo Gestion",
+  "start_url": "/admin",
+  "scope": "/admin",
+  "display": "standalone",
+  "background_color": "#211912",
+  "theme_color": "#211912",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

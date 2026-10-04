@@ -1,13 +1,13 @@
 'use client';
 
 import { useActionState } from 'react';
-import { submitContact, type FormState } from '@/app/actions';
-import { subjects, LIMITS } from '@/lib/form-options';
+import { submitContact, type FormState } from '@/app/(site)/actions';
 import { Field, Honeypot, Turnstile, FormMessage } from './parts';
 import { Arrow } from '@/components/ui/Arrow';
 
 const initial: FormState = { status: 'idle', message: '' };
 
+/** Formulaire de contact minimal : nom, e-mail, téléphone facultatif, message. */
 export function ContactForm() {
   const [state, action, pending] = useActionState(submitContact, initial);
 
@@ -24,34 +24,23 @@ export function ContactForm() {
     <form action={action} className="contact-form">
       <FormMessage state={state} />
       <div className="fields-2">
-        <Field id="c-prenom" name="prenom" label="Prénom" state={state}>
-          {(a) => <input {...a} autoComplete="given-name" maxLength={LIMITS.name} required />}
-        </Field>
-        <Field id="c-nom" name="nom" label="Nom" state={state}>
-          {(a) => <input {...a} autoComplete="family-name" maxLength={LIMITS.name} required />}
+        <Field id="c-name" name="name" label="Nom" state={state}>
+          {(a) => <input {...a} autoComplete="name" maxLength={120} required />}
         </Field>
         <Field id="c-email" name="email" label="E-mail" state={state}>
-          {(a) => <input {...a} type="email" autoComplete="email" maxLength={254} required />}
-        </Field>
-        <Field id="c-tel" name="telephone" label="Téléphone" optional state={state}>
-          {(a) => <input {...a} type="tel" autoComplete="tel" maxLength={25} pattern="[0-9 +().\-]{9,25}" />}
+          {(a) => <input {...a} type="email" autoComplete="email" maxLength={160} required />}
         </Field>
       </div>
-      <Field id="c-sujet" name="sujet" label="Sujet" state={state}>
-        {(a) => (
-          <select {...a} required defaultValue={a.defaultValue ?? ''}>
-            <option value="" disabled>Choisir…</option>
-            {subjects.map((s) => <option key={s}>{s}</option>)}
-          </select>
-        )}
+      <Field id="c-tel" name="phone" label="Téléphone" optional state={state}>
+        {(a) => <input {...a} type="tel" autoComplete="tel" maxLength={25} pattern="[0-9 +.\-]{9,25}" />}
       </Field>
       <Field id="c-message" name="message" label="Message" state={state}>
-        {(a) => <textarea {...a} rows={6} minLength={10} maxLength={LIMITS.contactMessage} required />}
+        {(a) => <textarea {...a} rows={5} minLength={10} maxLength={3000} required />}
       </Field>
       <Honeypot />
       <Turnstile />
       <button type="submit" className="btn btn--primary" disabled={pending}>
-        {pending ? 'Envoi…' : 'Envoyer le message'} <Arrow />
+        {pending ? 'Envoi…' : 'Envoyer'} <Arrow />
       </button>
     </form>
   );

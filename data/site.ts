@@ -54,6 +54,9 @@ export const site = {
 
   activities: ['Boulangerie', 'Pâtisserie', 'Viennoiserie', 'Chocolaterie', 'Confiserie', 'Glaces', 'Traiteur', 'Snacking'],
 
+  /** Préfixe des numéros de commande : DUO-20261004-0042. */
+  orderPrefix: 'DUO',
+
   legal: {
     name: 'LE DUO D’ARTISANS',
     form: 'SARL',
@@ -66,11 +69,11 @@ export const site = {
   },
 } as const;
 
+/** Navigation publique : quatre entrées, rien de plus. */
 export const nav = [
-  { label: 'La Maison', href: '/la-maison' },
-  { label: 'Savoir-faire', href: '/savoir-faire' },
-  { label: 'Nos créations', href: '/nos-creations' },
-  { label: 'Commandes', href: '/commandes' },
+  { label: 'Accueil', href: '/' },
+  { label: 'Commander', href: '/commander' },
+  { label: 'Créations', href: '/creations' },
   { label: 'Contact', href: '/contact' },
 ] as const;
 

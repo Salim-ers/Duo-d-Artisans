@@ -1,14 +1,21 @@
 import Link from 'next/link';
-import { nav, site } from '@/data/site';
-import { openingHours, weekOrder, formatIntervals } from '@/data/opening-hours';
+import { site } from '@/data/site';
+import { dayLabels, formatIntervals, weekOrder, type Interval } from '@/data/opening-hours';
 
-export function Footer() {
+/** Pied de page minimal : marque, adresse, téléphone, horaires, mentions. */
+export function Footer({ week }: { week: Interval[][] }) {
+  const socials = Object.entries(site.social).filter((e): e is [string, string] => !!e[1]);
   return (
     <footer className="footer">
       <div className="wrap">
-        <p className="footer-mark" aria-hidden="true">Le Duo <em>d’Artisans</em></p>
+        <div className="footer-top">
+          <div>
+            <p className="footer-mark">
+              Le Duo <em>d’Artisans</em>
+            </p>
+            <p>Boulangerie · Pâtisserie · Viennoiserie · Snacking</p>
+          </div>
 
-        <div className="footer-grid">
           <div>
             <h2 className="footer-h">La boutique</h2>
             <p>
@@ -16,41 +23,57 @@ export function Footer() {
               <br />
               {site.address.postalCode} {site.address.city}
             </p>
-            <p><a className="lnk" href={site.phone.href}>{site.phone.display}</a></p>
-            <p><a className="lnk" href={site.maps.directions} target="_blank" rel="noopener noreferrer">Itinéraire</a></p>
+            <p style={{ marginTop: 10 }}>
+              <a href={site.phone.href}>{site.phone.display}</a>
+            </p>
+            <p style={{ marginTop: 4 }}>
+              <a href={site.maps.directions} target="_blank" rel="noopener noreferrer">
+                Itinéraire ↗
+              </a>
+            </p>
           </div>
 
           <div>
-            <h2 className="footer-h">Horaires habituels</h2>
+            <h2 className="footer-h">Horaires</h2>
             <dl className="footer-hours">
-              {weekOrder.map((day) => {
-                const d = openingHours.find((o) => o.day === day)!;
-                return (
-                  <div key={day}>
-                    <dt>{d.label}</dt>
-                    <dd>{formatIntervals(d.intervals)}</dd>
-                  </div>
-                );
-              })}
+              {weekOrder.map((day) => (
+                <div key={day}>
+                  <dt>{dayLabels[day]}</dt>
+                  <dd>{formatIntervals(week[day] ?? [])}</dd>
+                </div>
+              ))}
             </dl>
           </div>
 
-          <nav aria-label="Pied de page">
-            <h2 className="footer-h">La maison</h2>
-            <ul>
-              {nav.map((item) => (
-                <li key={item.href}><Link href={item.href}>{item.label}</Link></li>
-              ))}
-            </ul>
-          </nav>
+          <div>
+            <h2 className="footer-h">Commander</h2>
+            <p>
+              <Link href="/commander">Retrait en boutique</Link>
+            </p>
+            <p style={{ marginTop: 4 }}>
+              <Link href="/commande-personnalisee">Gâteau sur mesure</Link>
+            </p>
+            {socials.length > 0 && (
+              <p style={{ marginTop: 16 }}>
+                {socials.map(([name, url]) => (
+                  <a key={name} href={url} target="_blank" rel="noopener noreferrer" style={{ marginRight: 16, textTransform: 'capitalize' }}>
+                    {name}
+                  </a>
+                ))}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="footer-legal">
-          <p>{site.legal.name} · {site.legal.form} · SIREN {site.legal.siren}</p>
           <p>
+            {site.legal.name} · {site.legal.form} · SIREN {site.legal.siren}
+          </p>
+          <nav aria-label="Informations légales">
             <Link href="/mentions-legales">Mentions légales</Link>
             <Link href="/politique-confidentialite">Confidentialité</Link>
-          </p>
+            <Link href="/conditions-de-vente">Conditions de vente</Link>
+          </nav>
         </div>
       </div>
     </footer>

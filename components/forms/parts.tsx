@@ -1,7 +1,7 @@
 'use client';
 
 import Script from 'next/script';
-import type { FormState } from '@/app/actions';
+import type { FormState } from '@/app/(site)/actions';
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
@@ -17,7 +17,7 @@ type FieldProps = {
 
 /** Champ libellé, avec message d'erreur relié (aria-describedby) et valeur restaurée après erreur. */
 export function Field({ id, label, state, name, hint, optional, children }: FieldProps) {
-  const error = state.fieldErrors?.[name];
+  const error = state.fields?.[name];
   const describedBy = [hint ? `${id}-hint` : '', error ? `${id}-err` : ''].filter(Boolean).join(' ') || undefined;
   return (
     <div className="field" data-invalid={error ? '' : undefined}>
@@ -38,7 +38,7 @@ export function Honeypot() {
     <div className="hp" aria-hidden="true">
       <label>
         Site web
-        <input type="text" name="site_web" tabIndex={-1} autoComplete="off" />
+        <input type="text" name="website" tabIndex={-1} autoComplete="off" />
       </label>
     </div>
   );

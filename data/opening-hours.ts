@@ -1,26 +1,28 @@
 /**
- * Horaires habituels (source : fiche Google + affichage en vitrine).
- * Ils alimentent l'affichage, le statut « ouvert / fermé » et le JSON-LD.
- * Les fermetures exceptionnelles et jours fériés ne sont pas gérés :
- * le site le signale toujours à côté du statut.
+ * Horaires habituels relevés sur la fiche Google et l'affichage en vitrine.
+ * Ce sont les valeurs INITIALES : la boutique les modifie ensuite dans Gestion → Paramètres,
+ * et ce sont alors les horaires enregistrés qui alimentent tout le site (statut, JSON-LD, créneaux).
+ *
+ * Index : 0 = dimanche … 6 = samedi. Tableau vide = fermé.
  */
 export type Interval = { open: string; close: string };
-export type DayHours = { day: number; label: string; intervals: Interval[] };
 
-export const openingHours: DayHours[] = [
-  { day: 1, label: 'Lundi', intervals: [] },
-  { day: 2, label: 'Mardi', intervals: [{ open: '06:30', close: '19:30' }] },
-  { day: 3, label: 'Mercredi', intervals: [{ open: '06:30', close: '19:30' }] },
-  { day: 4, label: 'Jeudi', intervals: [{ open: '06:30', close: '19:30' }] },
-  { day: 5, label: 'Vendredi', intervals: [{ open: '06:30', close: '19:30' }] },
-  { day: 6, label: 'Samedi', intervals: [{ open: '06:30', close: '19:00' }] },
-  { day: 0, label: 'Dimanche', intervals: [{ open: '07:00', close: '13:30' }] },
+export const defaultWeek: Interval[][] = [
+  [{ open: '07:00', close: '13:30' }], // dimanche
+  [], // lundi
+  [{ open: '06:30', close: '19:30' }], // mardi
+  [{ open: '06:30', close: '19:30' }], // mercredi
+  [{ open: '06:30', close: '19:30' }], // jeudi
+  [{ open: '06:30', close: '19:30' }], // vendredi
+  [{ open: '06:30', close: '19:00' }], // samedi
 ];
+
+export const dayLabels = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
 /** Ordre d'affichage : du lundi au dimanche. */
 export const weekOrder = [1, 2, 3, 4, 5, 6, 0];
 
-export const hoursByDay = (day: number) => openingHours.find((d) => d.day === day);
+const h = (t: string) => t.replace(':', 'h');
 
 export const formatIntervals = (intervals: Interval[]) =>
-  intervals.length === 0 ? 'Fermé' : intervals.map((i) => `${i.open.replace(':', 'h')} – ${i.close.replace(':', 'h')}`).join(' · ');
+  intervals.length === 0 ? 'Fermé' : intervals.map((i) => `${h(i.open)} – ${h(i.close)}`).join(' · ');
