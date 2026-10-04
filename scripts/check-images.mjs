@@ -93,7 +93,10 @@ for (const img of declared) {
     errors.push(`${img.key} : dimensions déclarées ${img.w}×${img.h}, fichier réel ${real.w}×${real.h}`);
   }
   if (real.w < 1200) warnings.push(`${img.key} : ${real.w} px de large — trop peu pour un grand visuel.`);
-  if (size > 600 * 1024) warnings.push(`${img.key} : ${(size / 1024).toFixed(0)} Ko — à recompresser.`);
+  // Les fichiers maîtres très grands (≥ 3000 px, ex. visuel d'accueil) ne sont jamais servis tels quels :
+  // next/image les réencode à la largeur utile. On garde leur qualité, avec un plafond plus large.
+  const maxKo = Math.max(real.w, real.h) >= 3000 ? 2500 : 600;
+  if (size > maxKo * 1024) warnings.push(`${img.key} : ${(size / 1024).toFixed(0)} Ko — à recompresser.`);
   rows.push({ image: img.key, fichier: img.src, dimensions: `${real.w}×${real.h}`, ratio: (real.w / real.h).toFixed(3), poids: `${(size / 1024).toFixed(0)} Ko` });
 }
 

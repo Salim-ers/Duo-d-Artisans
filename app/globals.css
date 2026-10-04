@@ -454,6 +454,7 @@ a:hover > .arrow[style] { transform: rotate(-45deg) translateX(3px); }
 .legal p, .legal li { max-width: 64ch; color: var(--encre-2); }
 .legal p + p { margin-top: 10px; }
 .legal ul { list-style: disc; padding-left: 20px; display: grid; gap: 6px; }
+.legal p + ul { margin-top: 12px; }
 .lost { min-height: 72svh; display: grid; align-content: center; gap: 24px; padding-block: var(--sp-l); }
 .lost-code { font-family: var(--f-serif-stack); font-size: clamp(7rem, 3rem + 20vw, 20rem); line-height: 0.75; letter-spacing: -0.06em; color: var(--pierre); }
 .lost-links { display: flex; flex-wrap: wrap; gap: 16px 32px; margin-top: 12px; }

@@ -1,90 +1,122 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useActionState, useEffect, useRef, useState, startTransition } from 'react';
 import { submitCustomRequest, type FormState } from '@/app/(site)/actions';
 import { site } from '@/data/site';
-import { capitalize, formatDate } from '@/lib/format';
+import { formatDate } from '@/lib/format';
 import { compressImage } from '@/lib/resize-image';
 import { Arrow } from '@/components/ui/Arrow';
 import { CloseIcon } from '@/components/ui/Icons';
-import { Field, Honeypot, Turnstile, FormMessage } from './parts';
-
-const STEPS = [
-  { title: 'Création', fields: ['type'] },
-  { title: 'Date et parts', fields: ['desiredDate', 'servings'] },
-  { title: 'Votre envie', fields: ['flavors', 'theme', 'inscription', 'budget', 'comment'] },
-  { title: 'Coordonnées', fields: ['firstName', 'lastName', 'phone', 'email'] },
-] as const;
+import { Honeypot, Turnstile, FormMessage } from './parts';
 
 const initial: FormState = { status: 'idle', message: '' };
 const MAX_IMAGES = 3;
 
-export type TypeChoice = { label: string; image: string | null };
+type A11y = { id: string; name: string; 'aria-invalid'?: true; 'aria-describedby'?: string; defaultValue?: string };
+
+/** Une question du bloc-note : numéro dans la marge, question, ligne de réponse, erreur reliée. */
+function Question({
+  n,
+  id,
+  name,
+  label,
+  hint,
+  optional,
+  state,
+  children,
+}: {
+  n: number;
+  id: string;
+  name: string;
+  label: string;
+  hint?: string;
+  optional?: boolean;
+  state: FormState;
+  children: (a: A11y) => React.ReactNode;
+}) {
+  const error = state.fields?.[name];
+  const describedBy = [hint ? `${id}-hint` : '', error ? `${id}-err` : ''].filter(Boolean).join(' ') || undefined;
+  return (
+    <li className="pad-q" data-invalid={error ? '' : undefined}>
+      <span className="pad-n" aria-hidden="true">{n}</span>
+      <label className="pad-label" htmlFor={id}>
+        {label}
+        {optional && <span className="pad-opt">facultatif</span>}
+      </label>
+      {hint && (
+        <p className="pad-hint" id={`${id}-hint`}>
+          {hint}
+        </p>
+      )}
+      {children({ id, name, 'aria-invalid': error ? true : undefined, 'aria-describedby': describedBy, defaultValue: state.values?.[name] })}
+      {error && (
+        <p className="field-err" id={`${id}-err`}>
+          {error}
+        </p>
+      )}
+    </li>
+  );
+}
+
+/** Petite ligne libellée (coordonnées) à l'intérieur d'une question. */
+function Line({ id, name, label, state, children }: { id: string; name: string; label: string; state: FormState; children: (a: A11y) => React.ReactNode }) {
+  const error = state.fields?.[name];
+  return (
+    <div className="pad-line" data-invalid={error ? '' : undefined}>
+      <label className="pad-mini" htmlFor={id}>
+        {label}
+      </label>
+      {children({ id, name, 'aria-invalid': error ? true : undefined, 'aria-describedby': error ? `${id}-err` : undefined, defaultValue: state.values?.[name] })}
+      {error && (
+        <p className="field-err" id={`${id}-err`}>
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+const kb = (n: number) => `${Math.max(1, Math.round(n / 1024)).toLocaleString('fr-FR')} Ko`;
 
 /**
- * Demande de création sur mesure en quatre étapes.
- * Sans JavaScript : tout s'affiche d'un bloc et le formulaire s'envoie normalement (Server Action).
- * Avec JavaScript : une étape à la fois, photos d'inspiration compressées avant l'envoi.
+ * Demande de gâteau sur mesure, présentée comme un bloc-note : toutes les questions sont visibles,
+ * on répond dans l'ordre, sans étapes ni photos.
+ * Sans JavaScript, le formulaire s'envoie normalement (Server Action) ; avec, les images jointes sont compressées.
  */
-export function CustomRequestForm({ types, minDate }: { types: TypeChoice[]; minDate: string }) {
+export function CustomRequestForm({ types, minDate }: { types: string[]; minDate: string }) {
   const [state, action, pending] = useActionState(submitCustomRequest, initial);
   const [enhanced, setEnhanced] = useState(false);
-  const [step, setStep] = useState(0);
   const [type, setType] = useState('');
-  const [files, setFiles] = useState<{ file: File; url: string }[]>([]);
+  const [files, setFiles] = useState<{ file: File; name: string; key: string }[]>([]);
   const form = useRef<HTMLFormElement>(null);
-  const sets = useRef<(HTMLFieldSetElement | null)[]>([]);
-  const moved = useRef(false);
 
   useEffect(() => {
     setEnhanced(true);
     const t = new URLSearchParams(window.location.search).get('type');
-    if (t && types.some((x) => x.label === t)) setType(t);
+    if (t && types.includes(t)) setType(t);
   }, [types]);
 
+  // Après un refus du serveur : la valeur choisie revient, et le curseur va à la première réponse à corriger.
   useEffect(() => {
-    const errors = state.fields;
-    if (!errors) return;
-    const index = STEPS.findIndex((s) => s.fields.some((f) => errors[f]));
-    if (index >= 0) goTo(index);
+    if (state.values?.type) setType(state.values.type);
+    if (!state.fields) return;
+    const first = form.current?.querySelector<HTMLElement>('[data-invalid] :is(input, textarea)');
+    first?.focus();
+    first?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [state]);
-
-  useEffect(() => {
-    if (enhanced && moved.current) sets.current[step]?.focus();
-  }, [step, enhanced]);
-
-  useEffect(() => () => files.forEach((f) => URL.revokeObjectURL(f.url)), [files]);
-
-  function goTo(i: number) {
-    moved.current = true;
-    setStep(i);
-    form.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  function stepIsValid() {
-    if (step === 0 && !type) return false;
-    for (const el of sets.current[step]?.querySelectorAll<HTMLInputElement>('input, select, textarea') ?? []) {
-      if (!el.checkValidity()) {
-        el.reportValidity();
-        return false;
-      }
-    }
-    return true;
-  }
 
   async function addFiles(list: FileList | null) {
     if (!list) return;
     const room = MAX_IMAGES - files.length;
     const picked = [...list].filter((f) => /^image\//.test(f.type)).slice(0, room);
-    const ready = await Promise.all(picked.map((f) => compressImage(f)));
-    setFiles((cur) => [...cur, ...ready.map((file) => ({ file, url: URL.createObjectURL(file) }))]);
+    const ready = await Promise.all(picked.map(async (f) => ({ file: await compressImage(f), name: f.name, key: `${f.name}-${f.size}-${f.lastModified}` })));
+    setFiles((cur) => [...cur, ...ready.filter((r) => !cur.some((c) => c.key === r.key))]);
   }
 
   if (state.status === 'success')
     return (
-      <div className="form-done" role="status" tabIndex={-1} ref={(el) => el?.focus()}>
+      <div className="form-done pad-done" role="status" tabIndex={-1} ref={(el) => el?.focus()}>
         <p className="form-done-title">Demande transmise.</p>
         {state.ref && (
           <p>
@@ -103,158 +135,156 @@ export function CustomRequestForm({ types, minDate }: { types: TypeChoice[]; min
       </div>
     );
 
-  const hide = (i: number) => enhanced && i !== step;
-  const last = STEPS.length - 1;
-
   return (
     <form
       ref={form}
       action={action}
-      className="creq"
-      noValidate={enhanced}
+      className="pad"
       data-enhanced={enhanced || undefined}
       onSubmit={(e) => {
         if (!enhanced) return;
         e.preventDefault();
-        if (!stepIsValid()) return;
         const fd = new FormData(e.currentTarget);
         fd.delete('images');
         files.forEach((f) => fd.append('images', f.file));
         startTransition(() => action(fd));
       }}
     >
-      {enhanced && (
-        <ol className="creq-steps" aria-label="Étapes de la demande">
-          {STEPS.map((s, i) => (
-            <li key={s.title} aria-current={i === step ? 'step' : undefined} data-done={i < step || undefined}>
-              <button type="button" disabled={i >= step} onClick={() => goTo(i)}>
-                <span>{String(i + 1).padStart(2, '0')}</span> {s.title}
-              </button>
-            </li>
-          ))}
-        </ol>
-      )}
+      <div className="pad-head">
+        <p className="pad-title">Ma commande de gâteau</p>
+        <p className="pad-sub">Le Duo d’Artisans · Rantigny</p>
+      </div>
 
-      <div className="creq-body">
+      <div className="pad-body">
         <FormMessage state={state} />
 
-        <fieldset ref={(el) => { sets.current[0] = el; }} hidden={hide(0)} tabIndex={-1} className="creq-set">
-          <legend>
-            <span className="creq-n">01</span> Que souhaitez-vous ?
-          </legend>
-          <div className="creq-types">
-            {types.map((t, i) => (
-              <label key={t.label} className="creq-type" style={{ ['--i' as string]: i }}>
-                <input type="radio" name="type" value={t.label} required={i === 0} checked={type === t.label} onChange={() => setType(t.label)} />
-                <span className="creq-type-media photo">{t.image && <Image src={t.image} alt="" fill sizes="(max-width: 700px) 45vw, 18vw" quality={70} />}</span>
-                <span className="creq-type-name">{t.label}</span>
+        <ol className="pad-list">
+          <li className="pad-q" data-invalid={state.fields?.type ? '' : undefined}>
+            <span className="pad-n" aria-hidden="true">1</span>
+            <fieldset className="pad-set" aria-describedby={state.fields?.type ? 'cr-type-err' : undefined}>
+              <legend className="pad-label">Quel gâteau souhaitez-vous ?</legend>
+              <div className="pad-chips">
+                {types.map((t, i) => (
+                  <label key={t} className="pad-chip">
+                    <input type="radio" name="type" value={t} required={i === 0} checked={type === t} onChange={() => setType(t)} />
+                    <span>{t}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            {state.fields?.type && (
+              <p className="field-err" id="cr-type-err">
+                {state.fields.type}
+              </p>
+            )}
+          </li>
+
+          <Question n={2} id="cr-date" name="desiredDate" label="Pour quelle date ?" hint={`Au plus tôt le ${formatDate(minDate)}. Le gâteau se retire en boutique.`} state={state}>
+            {(a) => <input {...a} className="pad-input pad-input--date" type="date" min={minDate} required />}
+          </Question>
+
+          <Question n={3} id="cr-servings" name="servings" label="Pour combien de personnes ?" state={state}>
+            {(a) => (
+              <span className="pad-inline">
+                <input {...a} className="pad-input pad-input--num" type="number" inputMode="numeric" min={1} max={300} step={1} required />
+                <span aria-hidden="true">personnes</span>
+              </span>
+            )}
+          </Question>
+
+          <Question n={4} id="cr-flavors" name="flavors" label="Quelles saveurs vous font envie ?" optional state={state}>
+            {(a) => <input {...a} className="pad-input" maxLength={300} placeholder="Chocolat, fruits rouges, vanille…" />}
+          </Question>
+
+          <Question n={5} id="cr-theme" name="theme" label="Un thème, des couleurs ?" optional state={state}>
+            {(a) => <input {...a} className="pad-input" maxLength={200} placeholder="Licorne, bleu et blanc, champêtre…" />}
+          </Question>
+
+          <Question n={6} id="cr-inscription" name="inscription" label="Un texte à écrire sur le gâteau ?" optional state={state}>
+            {(a) => <input {...a} className="pad-input" maxLength={120} placeholder="Joyeux anniversaire Léa" />}
+          </Question>
+
+          <Question n={7} id="cr-budget" name="budget" label="Un budget en tête ?" optional state={state}>
+            {(a) => <input {...a} className="pad-input" maxLength={60} placeholder="Ex. 60 €" />}
+          </Question>
+
+          <Question n={8} id="cr-comment" name="comment" label="Une allergie, une contrainte, une idée ?" optional state={state}>
+            {(a) => <textarea {...a} className="pad-input pad-area" rows={3} maxLength={2000} placeholder="Tout ce qui peut nous aider à préparer votre gâteau." />}
+          </Question>
+
+          <li className="pad-q">
+            <span className="pad-n" aria-hidden="true">9</span>
+            <p className="pad-label" id="cr-files-label">
+              Une image pour nous inspirer ?<span className="pad-opt">facultatif</span>
+            </p>
+            {files.length > 0 && (
+              <ul className="pad-files" aria-labelledby="cr-files-label">
+                {files.map((f) => (
+                  <li key={f.key}>
+                    <span className="pad-file-name">{f.name}</span>
+                    <span className="pad-file-size">{kb(f.file.size)}</span>
+                    <button type="button" className="pad-file-x" aria-label={`Retirer ${f.name}`} onClick={() => setFiles((cur) => cur.filter((x) => x !== f))}>
+                      <CloseIcon />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {files.length < MAX_IMAGES && (
+              <label className="pad-attach">
+                <input
+                  type="file"
+                  name="images"
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                  aria-describedby="cr-files-hint"
+                  onChange={(e) => {
+                    if (!enhanced) return;
+                    addFiles(e.target.files);
+                    e.target.value = '';
+                  }}
+                />
+                <span>+ Joindre une image</span>
               </label>
-            ))}
-          </div>
-          {state.fields?.type && <p className="field-err">{state.fields.type}</p>}
-        </fieldset>
+            )}
+            <p className="pad-hint" id="cr-files-hint">
+              Une photo trouvée en ligne, un dessin… {MAX_IMAGES} au maximum, vues uniquement par la boutique.
+            </p>
+          </li>
 
-        <fieldset ref={(el) => { sets.current[1] = el; }} hidden={hide(1)} tabIndex={-1} className="creq-set">
-          <legend>
-            <span className="creq-n">02</span> Pour quand, pour combien ?
-          </legend>
-          <div className="fields-2">
-            <Field id="cr-date" name="desiredDate" label="Date souhaitée" hint={`Au plus tôt le ${formatDate(minDate)}.`} state={state}>
-              {(a) => <input {...a} type="date" min={minDate} required />}
-            </Field>
-            <Field id="cr-servings" name="servings" label="Nombre de personnes" state={state}>
-              {(a) => <input {...a} type="number" inputMode="numeric" min={1} max={300} step={1} required />}
-            </Field>
-          </div>
-        </fieldset>
+          <li className="pad-q">
+            <span className="pad-n" aria-hidden="true">10</span>
+            <fieldset className="pad-set">
+              <legend className="pad-label">À qui la boutique répond-elle ?</legend>
+              <div className="pad-grid">
+                <Line id="cr-first" name="firstName" label="Prénom" state={state}>
+                  {(a) => <input {...a} className="pad-input" autoComplete="given-name" maxLength={60} required />}
+                </Line>
+                <Line id="cr-last" name="lastName" label="Nom" state={state}>
+                  {(a) => <input {...a} className="pad-input" autoComplete="family-name" maxLength={60} required />}
+                </Line>
+                <Line id="cr-phone" name="phone" label="Téléphone" state={state}>
+                  {(a) => <input {...a} className="pad-input" type="tel" autoComplete="tel" maxLength={25} pattern="[0-9 +.\-]{9,25}" required />}
+                </Line>
+                <Line id="cr-email" name="email" label="E-mail" state={state}>
+                  {(a) => <input {...a} className="pad-input" type="email" autoComplete="email" maxLength={160} required />}
+                </Line>
+              </div>
+            </fieldset>
+          </li>
+        </ol>
 
-        <fieldset ref={(el) => { sets.current[2] = el; }} hidden={hide(2)} tabIndex={-1} className="creq-set">
-          <legend>
-            <span className="creq-n">03</span> Racontez-nous votre envie
-          </legend>
-          <div className="fields-2">
-            <Field id="cr-flavors" name="flavors" label="Saveurs souhaitées" optional state={state}>
-              {(a) => <input {...a} maxLength={300} placeholder="Chocolat, fruits rouges…" />}
-            </Field>
-            <Field id="cr-theme" name="theme" label="Thème, couleurs" optional state={state}>
-              {(a) => <input {...a} maxLength={200} />}
-            </Field>
-            <Field id="cr-inscription" name="inscription" label="Texte à inscrire" optional state={state}>
-              {(a) => <input {...a} maxLength={120} placeholder="Joyeux anniversaire…" />}
-            </Field>
-            <Field id="cr-budget" name="budget" label="Budget indicatif" optional state={state}>
-              {(a) => <input {...a} maxLength={60} placeholder="Ex. 60 €" />}
-            </Field>
-          </div>
-          <Field id="cr-comment" name="comment" label="Commentaires" optional hint="Allergies, contraintes, idée de décor… tout ce qui peut aider." state={state}>
-            {(a) => <textarea {...a} rows={4} maxLength={2000} />}
-          </Field>
-          <div className="field">
-            <span className="field-label">
-              Images d’inspiration <span className="field-opt">— facultatif, {MAX_IMAGES} maximum</span>
-            </span>
-            <div className="creq-files">
-              {files.map((f, i) => (
-                <span key={f.url} className="creq-file">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={f.url} alt={`Inspiration ${i + 1}`} />
-                  <button type="button" className="icon-btn" aria-label="Retirer cette image" onClick={() => setFiles((cur) => cur.filter((x) => x !== f))}>
-                    <CloseIcon />
-                  </button>
-                </span>
-              ))}
-              {files.length < MAX_IMAGES && (
-                <label className="creq-drop">
-                  <input type="file" name="images" accept="image/jpeg,image/png,image/webp" multiple onChange={(e) => (enhanced ? (addFiles(e.target.files), (e.target.value = '')) : undefined)} />
-                  <span>+ Ajouter</span>
-                </label>
-              )}
-            </div>
-            <p className="field-hint">JPG, PNG ou WEBP. Visibles uniquement par la boutique.</p>
-          </div>
-        </fieldset>
+        <Honeypot />
+        <Turnstile />
 
-        <fieldset ref={(el) => { sets.current[3] = el; }} hidden={hide(3)} tabIndex={-1} className="creq-set">
-          <legend>
-            <span className="creq-n">04</span> Vos coordonnées
-          </legend>
-          <div className="fields-2">
-            <Field id="cr-first" name="firstName" label="Prénom" state={state}>
-              {(a) => <input {...a} autoComplete="given-name" maxLength={60} required />}
-            </Field>
-            <Field id="cr-last" name="lastName" label="Nom" state={state}>
-              {(a) => <input {...a} autoComplete="family-name" maxLength={60} required />}
-            </Field>
-            <Field id="cr-phone" name="phone" label="Téléphone" state={state}>
-              {(a) => <input {...a} type="tel" autoComplete="tel" maxLength={25} pattern="[0-9 +.\-]{9,25}" required />}
-            </Field>
-            <Field id="cr-email" name="email" label="E-mail" state={state}>
-              {(a) => <input {...a} type="email" autoComplete="email" maxLength={160} required />}
-            </Field>
-          </div>
-          <Honeypot />
-          <Turnstile />
-          <p className="creq-notice">
-            <strong>Ceci est une demande, pas une commande.</strong> La boutique l’étudie puis vous recontacte pour confirmer
-            faisabilité, délai et tarif. {type && `(${capitalize(type)})`}
+        <div className="pad-foot">
+          <p className="pad-notice">
+            <strong>C’est une demande, pas encore une commande.</strong> La boutique vous recontacte pour confirmer faisabilité, délai et prix. Rien n’est à
+            payer en ligne.
           </p>
-        </fieldset>
-
-        <div className="creq-nav">
-          {enhanced && step > 0 && (
-            <button type="button" className="btn btn--line" onClick={() => goTo(step - 1)}>
-              <Arrow direction="left" /> Retour
-            </button>
-          )}
-          {enhanced && step < last ? (
-            <button type="button" className="btn btn--primary" disabled={step === 0 && !type} onClick={() => stepIsValid() && goTo(step + 1)}>
-              Continuer <Arrow />
-            </button>
-          ) : (
-            <button type="submit" className="btn btn--primary" disabled={pending}>
-              {pending ? 'Envoi…' : 'Envoyer ma demande'} <Arrow />
-            </button>
-          )}
+          <button type="submit" className="btn btn--primary pad-send" disabled={pending}>
+            {pending ? 'Envoi…' : 'Envoyer ma demande'} <Arrow />
+          </button>
         </div>
       </div>
     </form>

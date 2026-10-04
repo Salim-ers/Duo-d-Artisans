@@ -1,5 +1,9 @@
+import { media, type Media } from '@/data/media';
 import { site, fullAddress } from '@/data/site';
 import { pageMetadata } from '@/lib/seo';
+
+/** Crédits des photos libres de droits, lus directement dans data/media.ts. */
+const credits = Object.values(media as Record<string, Media>).flatMap((m) => (m.credit ? [{ alt: m.alt, ...m.credit }] : []));
 
 export const metadata = pageMetadata({
   title: 'Mentions légales',
@@ -41,9 +45,30 @@ export default function MentionsPage() {
 
       <h2>Propriété intellectuelle</h2>
       <p>
-        Les photographies présentées sur ce site appartiennent à {site.legal.name}. Le visuel de la page d’accueil
-        est une illustration photographique générée pour le site. Toute reproduction sans autorisation est interdite.
+        Les photographies de la boutique et de ses créations appartiennent à {site.legal.name}. Toute reproduction sans
+        autorisation est interdite.
       </p>
+      <p>
+        La photographie de la devanture affichée en page d’accueil a été restaurée et agrandie à l’aide d’un outil
+        d’intelligence artificielle ; le haut de la façade et la rue ont été prolongés pour le format carré.
+      </p>
+
+      <h2>Photos d’ambiance</h2>
+      <p>
+        Les photos d’ingrédients et de gestes de la page d’accueil (blé, rouleau à pâtisserie, framboises, chocolat,
+        tomates, cierge magique) sont des photos libres de droits publiées sur Pexels (licence Pexels). Elles illustrent
+        les rayons de la boutique et ne représentent pas ses produits.
+      </p>
+      <ul className="legal-credits">
+        {credits.map((c) => (
+          <li key={c.url}>
+            {c.alt} —{' '}
+            <a className="lnk" href={c.url} target="_blank" rel="noopener noreferrer">
+              {c.author}
+            </a>
+          </li>
+        ))}
+      </ul>
     </article>
   );
 }

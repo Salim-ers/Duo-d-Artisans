@@ -2,6 +2,7 @@ import 'server-only';
 /** Données publiques partagées par les pages du site : horaires, exceptions, avis, galerie. */
 import { cache } from 'react';
 import { and, asc, eq, gte, lte } from 'drizzle-orm';
+import { media } from '@/data/media';
 import { getDb, schema as s } from '@/lib/db';
 import { addDays, paris } from '@/lib/dates';
 import type { DayException } from '@/lib/hours';
@@ -24,11 +25,28 @@ export const shopData = cache(async () => {
   return { week: hours.week, exceptions, reviews };
 });
 
-export async function galleryItems(homeOnly = false) {
+/**
+ * La photo de la devanture n'apparaît pas dans les galeries publiques :
+ * sa version haute définition est déjà l'image d'accueil (pas de doublon).
+ */
+const notInGalleries = new Set([media.facade.src]);
+
+/** Galerie publique (page Créations), dans l'ordre choisi dans la gestion. */
+export async function galleryItems() {
   const db = await getDb();
-  return db
+  const rows = await db
     .select()
     .from(s.gallery)
-    .where(and(eq(s.gallery.active, true), homeOnly ? eq(s.gallery.showOnHome, true) : undefined))
+    .where(eq(s.gallery.active, true))
     .orderBy(asc(s.gallery.position), asc(s.gallery.createdAt));
+  return rows.filter((g) => !notInGalleries.has(g.src));
+}
+
+/**
+ * Mosaïque de l'accueil : les photos « mises en avant » d'abord, complétées par les suivantes,
+ * sans jamais reprendre une photo déjà affichée ailleurs sur l'accueil (`exclude`).
+ */
+export async function homeGallery(exclude: string[], max = 8) {
+  const pool = (await galleryItems()).filter((g) => !exclude.includes(g.src));
+  return [...pool.filter((g) => g.showOnHome), ...pool.filter((g) => !g.showOnHome)].slice(0, max);
 }

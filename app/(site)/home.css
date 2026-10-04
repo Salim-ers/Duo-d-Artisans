@@ -16,7 +16,8 @@
   to { clip-path: inset(0 0 0 0 round 0 0 0 0); }
 }
 .hero-photo { position: absolute !important; inset: 0; background: var(--brun); }
-.hero-photo img { object-fit: cover; object-position: 60% 50%; }
+/* Image carrée : en paysage, la bande visible encadre l’enseigne et la vitrine. */
+.hero-photo img { object-fit: cover; object-position: 50% 52%; }
 .hero-photo img { animation: hero-zoom 2.8s var(--ease-out) 0.1s both; }
 @keyframes hero-zoom { from { transform: scale(1.3); } to { transform: scale(1.04); } }
 .hero-veil {
@@ -24,7 +25,7 @@
   background:
     linear-gradient(0deg, rgba(28, 22, 18, 0.94) 0%, rgba(28, 22, 18, 0.7) 36%, rgba(28, 22, 18, 0.15) 68%, rgba(28, 22, 18, 0) 82%),
     linear-gradient(90deg, rgba(28, 22, 18, 0.5), rgba(28, 22, 18, 0) 60%),
-    linear-gradient(180deg, rgba(28, 22, 18, 0.65), rgba(28, 22, 18, 0) 26%);
+    linear-gradient(180deg, rgba(28, 22, 18, 0.8), rgba(28, 22, 18, 0.38) 12%, rgba(28, 22, 18, 0) 26%);
   animation: hero-fade 1.2s var(--ease) 1s both;
 }
 @keyframes hero-fade { from { opacity: 0; } to { opacity: 1; } }
@@ -67,8 +68,6 @@
 }
 .hero-ribbon li:nth-child(even) { font-style: italic; }
 .hero-ribbon-star { width: 0.42em; height: 0.42em; color: var(--caramel); margin-left: 0.3em; }
-.hero-ribbon-thumb { position: relative; flex: none; width: 1.35em; aspect-ratio: 1; border-radius: 50%; overflow: hidden; background: var(--pierre); }
-.hero-ribbon-thumb img { object-fit: cover; }
 @keyframes hero-marquee { to { transform: translate3d(-50%, 0, 0); } }
 
 /* Parallaxe extrêmement légère liée au défilement (navigateurs compatibles uniquement). */
@@ -85,16 +84,19 @@
   .hero-aside { max-width: 520px; }
 }
 @media (max-aspect-ratio: 1/1) {
-  /* Écrans en hauteur : titre dans la zone calme du haut, boutons en bas, les pains au centre. */
-  .hero-photo img { object-position: 50% 78%; }
-  .hero-content { align-self: stretch; display: flex; flex-direction: column; align-items: stretch; padding-top: clamp(16px, 4svh, 40px); }
-  .hero-aside { flex: 1; display: flex; flex-direction: column; padding-bottom: 0; }
-  .hero-actions { margin-top: auto; }
+  /* Écrans en hauteur : l’image carrée couvre la hauteur, remontée pour placer l’enseigne en haut, le texte en bas. */
+  .hero-photo { inset: -17% 0 0 0; }
+  .hero-photo img { object-position: 54% 50%; }
   .hero-veil {
     background:
-      linear-gradient(180deg, rgba(28, 22, 18, 0.84) 0%, rgba(28, 22, 18, 0.55) 38%, rgba(28, 22, 18, 0) 58%),
-      linear-gradient(0deg, rgba(28, 22, 18, 0.55) 0%, rgba(28, 22, 18, 0) 26%);
+      linear-gradient(0deg, rgba(28, 22, 18, 0.95) 0%, rgba(28, 22, 18, 0.82) 34%, rgba(28, 22, 18, 0.2) 54%, rgba(28, 22, 18, 0) 62%),
+      linear-gradient(180deg, rgba(28, 22, 18, 0.86), rgba(28, 22, 18, 0.45) 14%, rgba(28, 22, 18, 0) 27%);
   }
+}
+@media (max-aspect-ratio: 1/1) and (max-height: 780px) {
+  /* Téléphones courts : on garde l’enseigne dégagée, la phrase d’accroche s’efface. */
+  .hero-baseline { display: none; }
+  .hero-now { padding-top: 12px; }
 }
 @media (max-width: 700px) {
   .hero-stage { min-height: 560px; max-height: none; }
@@ -205,7 +207,8 @@
 .cake-occasions a:hover { padding-left: 10px; color: var(--ble-clair); }
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .cake-inset { animation: duo-float linear both; animation-timeline: view(); animation-range: cover; }
+    .cake-inset { animation: cake-float linear both; animation-timeline: view(); animation-range: cover; }
+    @keyframes cake-float { from { translate: 0 40px; } to { translate: 0 -40px; } }
   }
 }
 @media (max-width: 900px) {
@@ -215,45 +218,46 @@
   .cake-body { margin-top: clamp(56px, 12vw, 96px); }
 }
 
-/* ---------- 5. LE DUO ---------- */
-.duo { padding-block: var(--sp-xl); }
-.duo-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(12px, 2vw, 28px); align-items: center; }
-.duo-media { grid-column: 1 / span 6; position: relative; }
-.duo-main { aspect-ratio: 4 / 5; border-radius: 4px; }
-.duo-inset { position: absolute !important; width: 42%; aspect-ratio: 1; right: -8%; bottom: -8%; border-radius: 4px; outline: clamp(6px, 1vw, 12px) solid var(--creme); }
-.duo-copy { grid-column: 8 / span 5; display: grid; gap: 22px; align-content: center; }
-.duo-values { margin-top: 8px; border-top: 1px solid var(--filet); }
-.duo-values li { display: grid; grid-template-columns: 2.6em minmax(0, 1fr); column-gap: 12px; padding-block: 16px; border-bottom: 1px solid var(--filet); }
-.duo-n { grid-row: span 2; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em; color: var(--caramel); padding-top: 0.6em; }
-.duo-word { font-family: var(--f-serif-stack); font-size: clamp(1.5rem, 1.2rem + 1vw, 2.1rem); line-height: 1.1; letter-spacing: -0.015em; }
-.duo-values p { color: var(--encre-2); font-size: 0.95rem; margin-top: 4px; max-width: 44ch; }
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .duo-inset { animation: duo-float linear both; animation-timeline: view(); animation-range: cover; }
-    @keyframes duo-float { from { translate: 0 40px; } to { translate: 0 -40px; } }
-  }
-}
-@media (max-width: 900px) {
-  .duo-media, .duo-copy { grid-column: 1 / -1; }
-  .duo-main { aspect-ratio: 4 / 3; }
-  .duo-inset { width: 36%; right: 4%; }
-  .duo-copy { margin-top: clamp(56px, 12vw, 96px); }
-}
-
-/* ---------- 6. AVIS ---------- */
-.reviews { padding-block: var(--sp-m) var(--sp-l); }
-.reviews-row { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 5fr) auto; gap: 24px clamp(24px, 4vw, 64px); align-items: end; padding-top: clamp(24px, 3vw, 40px); border-top: 1px solid var(--filet); }
-.reviews-h { font-size: clamp(1.5rem, 1.2rem + 1vw, 2.2rem); line-height: 1.1; }
+/* ---------- 5. AVIS — de vrais avis Google, recopiés tels quels ---------- */
+.reviews { padding-block: var(--sp-l); }
+.reviews-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px clamp(24px, 4vw, 64px); align-items: end; margin-bottom: clamp(32px, 4vw, 56px); }
+.reviews-h { font-size: clamp(2.2rem, 1.4rem + 3vw, 4.6rem); line-height: 0.98; letter-spacing: -0.03em; margin-top: 14px; }
 .reviews-h em { color: var(--caramel); }
-.reviews-score { display: flex; align-items: flex-end; gap: 22px; }
-.reviews-value { font-family: var(--f-serif-stack); font-size: clamp(4.6rem, 2.6rem + 6vw, 9rem); line-height: 0.8; letter-spacing: -0.05em; }
-.reviews-meta { display: grid; gap: 4px; padding-bottom: 6px; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+.reviews-score { display: flex; align-items: flex-end; gap: 18px; }
+.reviews-value { font-family: var(--f-serif-stack); font-size: clamp(3.6rem, 2.4rem + 4vw, 6.4rem); line-height: 0.8; letter-spacing: -0.05em; }
+.reviews-meta { display: grid; gap: 4px; padding-bottom: 4px; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
 .reviews-date { font-weight: 400; letter-spacing: 0.04em; text-transform: none; color: var(--encre-2); }
 .reviews-stars { position: relative; display: inline-flex; width: max-content; }
 .reviews-stars > span { display: inline-flex; gap: 2px; }
 .reviews-stars > span:first-child { color: var(--pierre); }
 .reviews-stars > span:last-child { position: absolute; inset: 0 auto 0 0; width: calc(var(--r) * 100%); overflow: hidden; color: var(--caramel); }
 .reviews-stars svg { width: 18px; height: 18px; flex: none; }
-.reviews-text { font-family: var(--f-serif-stack); font-size: 1.4rem; }
-@media (max-width: 820px) { .reviews-row { grid-template-columns: 1fr; } .reviews-row .btn { justify-self: start; } }
+
+.reviews-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 1.4vw, 20px); }
+.review {
+  position: relative; display: flex; flex-direction: column; gap: 16px;
+  padding: clamp(22px, 2.2vw, 32px); border-radius: 14px; background: var(--ivoire); border: 1px solid var(--filet);
+}
+.review-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.review-stars { display: inline-flex; gap: 2px; color: var(--caramel); }
+.review-stars svg { width: 16px; height: 16px; }
+.review-topic { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--encre-2); text-align: right; }
+.review-text { flex: 1; font-family: var(--f-serif-stack); font-size: clamp(1.08rem, 1rem + 0.3vw, 1.25rem); line-height: 1.45; color: var(--encre); }
+.review-text::before { content: '“'; display: block; height: 0.5em; margin-bottom: 0.15em; font-size: 3.2em; line-height: 0.9; color: var(--ble); }
+.review-by { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-top: 14px; border-top: 1px solid var(--filet); font-size: 0.85rem; }
+.review-by b { font-weight: 700; }
+.review-by span { color: var(--encre-2); font-size: 0.8rem; }
+.reviews-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px 32px; margin-top: clamp(24px, 3vw, 40px); }
+.reviews-note { font-size: 0.85rem; color: var(--encre-2); max-width: 60ch; }
+@media (max-width: 1000px) { .reviews-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 820px) { .reviews-head { grid-template-columns: 1fr; } }
+@media (max-width: 640px) {
+  /* Téléphone : les avis défilent horizontalement, un et demi à l’écran. */
+  .reviews-grid {
+    display: flex; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none;
+    margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); scroll-padding-inline: var(--gutter); padding-bottom: 4px;
+  }
+  .reviews-grid::-webkit-scrollbar { display: none; }
+  .review { flex: 0 0 min(84vw, 360px); scroll-snap-align: start; }
+}
 

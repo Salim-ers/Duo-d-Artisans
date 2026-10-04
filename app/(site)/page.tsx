@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import './home.css';
 import { Hero } from '@/components/home/Hero';
-import { CakeTeaser, Categories, CreationsMosaic, Duo, Practical, Reviews } from '@/components/home/Sections';
+import { CakeTeaser, Categories, CreationsMosaic, Practical, Reviews, cakeTeaserPhotos } from '@/components/home/Sections';
 import { JsonLd } from '@/components/ui/JsonLd';
 import { websiteSchema } from '@/lib/schema';
-import { galleryItems, shopData } from '@/lib/site-data';
+import { homeGallery, shopData } from '@/lib/site-data';
 
 export const metadata: Metadata = {
   alternates: { canonical: '/' },
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 export default async function HomePage() {
-  const [shop, gallery] = await Promise.all([shopData(), galleryItems(true)]);
+  const [shop, gallery] = await Promise.all([shopData(), homeGallery(cakeTeaserPhotos.map((p) => p.src))]);
   return (
     <>
       <JsonLd data={websiteSchema()} />
@@ -22,7 +22,6 @@ export default async function HomePage() {
       <Categories />
       <CreationsMosaic items={gallery} />
       <CakeTeaser />
-      <Duo />
       <Reviews reviews={shop.reviews} />
       <Practical week={shop.week} exceptions={shop.exceptions} />
     </>

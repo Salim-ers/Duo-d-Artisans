@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
 import '../pages.css';
-import { media, type MediaKey } from '@/data/media';
+import { media } from '@/data/media';
 import { site } from '@/data/site';
 import { addDays, paris } from '@/lib/dates';
 import { getSetting } from '@/lib/settings';
 import { pageMetadata } from '@/lib/seo';
-import { Photo } from '@/components/ui/Photo';
 import { Split } from '@/components/ui/Split';
 import { CustomRequestForm } from '@/components/forms/CustomRequestForm';
 
@@ -19,42 +18,44 @@ export const metadata: Metadata = pageMetadata({
 
 export const dynamic = 'force-dynamic';
 
-/** Vraies photos de la boutique associées aux types de création connus. */
-const typeImages: Record<string, MediaKey> = {
-  Anniversaire: 'gateauFruits',
-  'Number cake': 'numberCake',
-  Entremets: 'entremets',
-  Événement: 'macarons',
-  'Dessert à partager': 'vitrineFlans',
-  Autre: 'vitrinePatisseries',
-};
+const steps = [
+  { title: 'Vous remplissez le bloc-note', text: 'Quelques questions, sans engagement.' },
+  { title: 'La boutique vous répond', text: 'Avec une proposition et son prix.' },
+  { title: 'Vous validez, puis retirez votre gâteau', text: 'En boutique, au 7 rue Anatole France.' },
+];
 
+/** Commander = demander un gâteau sur mesure. Une seule page, aucune photo : un bloc-note à remplir. */
 export default async function CustomPage() {
   const cfg = await getSetting('custom');
   const minDate = addDays(paris().date, cfg.minDaysNotice);
   return (
-    <>
-      <section className="cp-hero" aria-labelledby="cp-title">
-        <div className="wrap cp-grid">
-          <div className="cp-text">
-            <span className="kicker">Commander · Sur mesure</span>
-            <Split as="h1" id="cp-title" lines={['Commander', { em: 'un gâteau.' }]} className="t-xl" />
-            <p className="t-lead" data-reveal>
-              Anniversaire, number cake, entremets, événement : décrivez votre envie en quatre étapes. La boutique étudie votre demande et revient vers vous
-              avec une proposition et son prix.
-            </p>
-            <p className="t-small" data-reveal>
-              Plus direct : <a className="lnk" href={site.phone.href}>{site.phone.display}</a>
-            </p>
-          </div>
-          <Photo image={media.numberCake} sizes="(max-width: 900px) 92vw, 40vw" priority reveal={false} className="cp-photo" />
+    <section className="cp" aria-labelledby="cp-title">
+      <div className="wrap cp-grid">
+        <div className="cp-side">
+          <span className="kicker">Commander · Sur mesure</span>
+          <Split as="h1" id="cp-title" lines={['Commander', { em: 'un gâteau.' }]} className="t-xl" />
+          <p className="t-lead" data-reveal>
+            Anniversaire, number cake, entremets, événement : répondez aux questions du bloc-note, la boutique s’occupe du reste.
+          </p>
+          <ol className="cp-steps" aria-label="Comment ça se passe">
+            {steps.map((s, i) => (
+              <li key={s.title} data-reveal style={{ ['--i' as string]: i }}>
+                <span className="cp-step-n">{i + 1}</span>
+                <span>
+                  <b>{s.title}</b>
+                  {s.text}
+                </span>
+              </li>
+            ))}
+          </ol>
+          <p className="t-small cp-phone" data-reveal>
+            Plus direct : <a className="lnk" href={site.phone.href}>{site.phone.display}</a>
+          </p>
         </div>
-      </section>
-      <section className="cp-form" aria-label="Formulaire de demande">
-        <div className="wrap">
-          <CustomRequestForm types={cfg.types.map((label) => ({ label, image: typeImages[label] ? media[typeImages[label]!].src : null }))} minDate={minDate} />
+        <div className="cp-pad">
+          <CustomRequestForm types={cfg.types} minDate={minDate} />
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }

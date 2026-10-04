@@ -3,9 +3,10 @@
 Boulangerie · Pâtisserie · Viennoiserie · Snacking — 7 rue Anatole France, 60290 Rantigny.
 
 - **Site public** (Accueil, Commander, Créations, Contact) — photographie, typographie, mouvement.
-  « Commander » = **commande de gâteau sur mesure** : le client décrit son envie (type, date, nombre de personnes,
-  saveurs, thème, texte, budget, photos d’inspiration). C’est une **demande** : aucun prix affiché, aucun paiement
-  en ligne. La boutique répond avec un devis que le client accepte depuis son lien de suivi.
+  « Commander » = **commande de gâteau sur mesure**, présentée comme un **bloc-note** : dix questions visibles d’un coup
+  (type, date, nombre de personnes, saveurs, thème, texte, budget, remarques, image d’inspiration facultative, coordonnées).
+  C’est une **demande** : aucun prix affiché, aucun paiement en ligne. La boutique répond avec un devis que le client
+  accepte depuis son lien de suivi.
 - **Gestion `/admin`** — volontairement simple : tableau de bord, commandes de gâteaux (devis, statuts),
   planning (gâteaux de la semaine, fermetures et horaires exceptionnels), clients (RGPD), messages, galerie,
   paramètres (horaires, types de gâteaux, avis Google, notifications, équipe).
@@ -54,13 +55,19 @@ Rien de fictif n’apparaît sur le site public.
 | Fermetures et horaires exceptionnels | Gestion → Planning |
 | Photos de la galerie et de l’accueil | Gestion → Galerie |
 | Note et nombre d’avis Google | Gestion → Paramètres → Avis |
+| Avis cités sur l’accueil (vrais avis Google, recopiés mot pour mot) | `data/reviews.ts` |
 | Nom, téléphone, adresse, mentions légales | `data/site.ts` |
-| Familles de l’accueil (liens vers la galerie) | `data/families.ts` |
+| Familles de l’accueil (liens, photo d’ambiance, cadrage) | `data/families.ts` |
 | Photographies (chemins, dimensions vérifiées au build) | `data/media.ts`, `public/images/` |
 | Couleurs, typographie | variables en tête de `app/globals.css` (site) et `app/admin/admin.css` |
 
-Le visuel d’accueil (`public/images/accueil/`, 3840 × 2160 et 2160 × 3840) est une illustration photographique générée ;
-toutes les autres photos sont celles de la boutique.
+Le visuel d’accueil (`public/images/accueil/`, 3200 × 3200) est la photo de la devanture, restaurée et agrandie par IA.
+Les photos d’ambiance (`public/images/ambiance/` : ingrédients et gestes) sont libres de droits (licence Pexels, crédits
+dans `data/media.ts` et les mentions légales) et ne sont jamais présentées comme des produits de la boutique.
+Toutes les autres photos sont celles de la boutique.
+
+**Règle : jamais deux fois la même photo sur une page.** La mosaïque de l’accueil écarte d’office les photos de l’encart
+« Sur mesure », et la photo de la devanture n’apparaît pas dans les galeries (elle est déjà l’image d’accueil).
 
 ## Structure
 

@@ -6,6 +6,7 @@ import type { DayException } from '@/lib/hours';
 import type { ReviewsSettings } from '@/lib/settings-shared';
 import { media } from '@/data/media';
 import { families } from '@/data/families';
+import { reviewQuotes } from '@/data/reviews';
 import { reviewsUrl, site, fullAddress } from '@/data/site';
 import { galleryCategories } from '@/lib/labels';
 import { Photo } from '@/components/ui/Photo';
@@ -30,7 +31,7 @@ export function Categories() {
           <li key={f.name} className="cat" data-reveal style={{ ['--i' as string]: i }}>
             <Link href={f.href} className="cat-link">
               <span className="cat-media">
-                <Image src={media[f.image].src} alt="" fill sizes="(max-width: 900px) 74vw, 34vw" quality={75} />
+                <Image src={media[f.image].src} alt="" fill sizes="(max-width: 900px) 74vw, 34vw" quality={75} style={{ objectPosition: f.position }} />
               </span>
               <span className="cat-text">
                 <span className="cat-n">{String(i + 1).padStart(2, '0')}</span>
@@ -94,13 +95,17 @@ const occasions = [
   { label: 'Autre envie', type: 'Autre' },
 ];
 
+/** Photos de l'encart gâteaux : la mosaïque de l'accueil ne les reprend pas. */
+export const cakeTeaserPhotos = [media.numberCake, media.gateauFruits] as const;
+
 export function CakeTeaser() {
+  const [main, inset] = cakeTeaserPhotos;
   return (
     <section className="cake" aria-labelledby="cake-title">
       <div className="wrap cake-grid">
         <div className="cake-media">
-          <Photo image={media.numberCake} sizes="(max-width: 900px) 92vw, 46vw" className="cake-photo" />
-          <Photo image={media.gateauFruits} sizes="(max-width: 900px) 44vw, 18vw" className="cake-inset" index={2} />
+          <Photo image={main} sizes="(max-width: 900px) 92vw, 46vw" className="cake-photo" />
+          <Photo image={inset} sizes="(max-width: 900px) 44vw, 18vw" className="cake-inset" index={2} />
         </div>
         <div className="cake-body">
           <span className="kicker">Sur mesure</span>
@@ -126,44 +131,7 @@ export function CakeTeaser() {
   );
 }
 
-/* ---------- 5. Le Duo : la maison et le savoir-faire, en dix secondes ---------- */
-const values = [
-  { word: 'Fabriqué ici', text: 'La fabrication se fait dans le laboratoire de la boutique, tôt le matin comme en cours de journée.' },
-  { word: 'Le goût avant tout', text: 'Un pain que l’on reprend le lendemain, une pâtisserie que l’on finit sans commentaire.' },
-  { word: 'Deux savoir-faire', text: 'La boulangerie d’un côté, la pâtisserie de l’autre, réunies sous une même enseigne.' },
-];
-
-export function Duo() {
-  return (
-    <section className="duo" id="le-duo" aria-labelledby="duo-title">
-      <div className="wrap duo-grid">
-        <div className="duo-media">
-          <Photo image={media.baguettesFournil} sizes="(max-width: 900px) 92vw, 46vw" className="duo-main" position="50% 55%" />
-          <Photo image={media.petrin} sizes="(max-width: 900px) 44vw, 18vw" className="duo-inset" index={2} />
-        </div>
-        <div className="duo-copy">
-          <span className="kicker">Le Duo</span>
-          <Split id="duo-title" lines={['Du pétrin', { em: 'à la vitrine.' }]} className="t-xl" />
-          <p className="t-lead" data-reveal>
-            Le Duo d’Artisans réunit deux métiers au 7 rue Anatole France, à Rantigny : le pain et la viennoiserie d’un côté,
-            la pâtisserie et les gourmandises de l’autre.
-          </p>
-          <ol className="duo-values">
-            {values.map((v, i) => (
-              <li key={v.word} data-reveal style={{ ['--i' as string]: i }}>
-                <span className="duo-n">{String(i + 1).padStart(2, '0')}</span>
-                <span className="duo-word">{v.word}</span>
-                <p>{v.text}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------- 6. Avis : uniquement les chiffres relevés sur la fiche Google ---------- */
+/* ---------- 5. Avis : de vrais avis Google 5 étoiles, recopiés mot pour mot (data/reviews.ts) ---------- */
 const fr = (n: number) => n.toLocaleString('fr-FR', { maximumFractionDigits: 1 });
 const frMonth = (iso: string) => new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(iso + 'T12:00:00Z'));
 
@@ -172,30 +140,53 @@ export function Reviews({ reviews }: { reviews: ReviewsSettings }) {
   const url = reviews.url ?? reviewsUrl;
   return (
     <section className="reviews" aria-labelledby="reviews-title">
-      <div className="wrap reviews-row">
-        <h2 id="reviews-title" className="reviews-h">
-          Ce qu’en disent
-          <br />
-          <em>les clients</em>
-        </h2>
-        {rating !== null && count !== null ? (
-          <div className="reviews-score" data-reveal>
-            <span className="reviews-value">{fr(rating)}</span>
-            <span className="reviews-meta">
-              <span className="reviews-stars" style={{ ['--r' as string]: rating / 5 }} role="img" aria-label={`${fr(rating)} sur 5`}>
-                <span>{Array.from({ length: 5 }, (_, i) => <StarIcon key={i} />)}</span>
-                <span aria-hidden="true">{Array.from({ length: 5 }, (_, i) => <StarIcon key={i} />)}</span>
-              </span>
-              <span>{count.toLocaleString('fr-FR')} avis Google</span>
-              {checkedOn && <span className="reviews-date">relevé en {frMonth(checkedOn)}</span>}
-            </span>
+      <div className="wrap">
+        <div className="reviews-head">
+          <div>
+            <span className="kicker">Avis Google</span>
+            <Split id="reviews-title" lines={['Ce qu’en disent', { em: 'les clients.' }]} className="reviews-h" />
           </div>
-        ) : (
-          <p className="reviews-text">Les avis sont publiés sur la fiche Google de la boutique.</p>
-        )}
-        <a className="btn btn--line" href={url} target="_blank" rel="noopener noreferrer">
-          Voir les avis Google <Arrow direction="up-right" />
-        </a>
+          {rating !== null && count !== null && (
+            <div className="reviews-score" data-reveal>
+              <span className="reviews-value">{fr(rating)}</span>
+              <span className="reviews-meta">
+                <span className="reviews-stars" style={{ ['--r' as string]: rating / 5 }} role="img" aria-label={`${fr(rating)} sur 5`}>
+                  <span>{Array.from({ length: 5 }, (_, i) => <StarIcon key={i} />)}</span>
+                  <span aria-hidden="true">{Array.from({ length: 5 }, (_, i) => <StarIcon key={i} />)}</span>
+                </span>
+                <span>{count.toLocaleString('fr-FR')} avis Google</span>
+                {checkedOn && <span className="reviews-date">relevé en {frMonth(checkedOn)}</span>}
+              </span>
+            </div>
+          )}
+        </div>
+
+        <ul className="reviews-grid" role="list">
+          {reviewQuotes.map((q, i) => (
+            <li key={q.author} className="review" data-reveal style={{ ['--i' as string]: i % 3 }}>
+              <div className="review-top">
+                <span className="review-stars" role="img" aria-label="5 étoiles sur 5">
+                  {Array.from({ length: 5 }, (_, k) => <StarIcon key={k} />)}
+                </span>
+                <span className="review-topic">{q.topic}</span>
+              </div>
+              <blockquote className="review-text">
+                <p>{q.text}</p>
+              </blockquote>
+              <p className="review-by">
+                <b>{q.author}</b>
+                <span>Avis Google · {frMonth(q.date)}</span>
+              </p>
+            </li>
+          ))}
+        </ul>
+
+        <div className="reviews-foot">
+          <p className="reviews-note">Extraits d’avis publiés sur la fiche Google de la boutique, recopiés sans modification.</p>
+          <a className="btn btn--line" href={url} target="_blank" rel="noopener noreferrer">
+            Lire tous les avis sur Google <Arrow direction="up-right" />
+          </a>
+        </div>
       </div>
     </section>
   );

@@ -1,7 +1,6 @@
 import Link from 'next/link';
-import Image, { getImageProps } from 'next/image';
-import { preload } from 'react-dom';
-import { media, type MediaKey } from '@/data/media';
+import Image from 'next/image';
+import { media } from '@/data/media';
 import type { Interval } from '@/data/opening-hours';
 import type { DayException } from '@/lib/hours';
 import { OpenNowLine } from '@/components/ui/OpenNow';
@@ -20,34 +19,23 @@ function Letters({ text, from = 0 }: { text: string; from?: number }) {
   );
 }
 
-const ribbon: { word: string; image: MediaKey }[] = [
-  { word: 'Baguettes', image: 'baguettesTradition' },
-  { word: 'Viennoiseries', image: 'painsChocolat' },
-  { word: 'Grands macarons', image: 'macarons' },
-  { word: 'Entremets', image: 'entremets' },
-  { word: 'Number cakes', image: 'numberCake' },
-  { word: 'Sandwichs', image: 'sandwichs' },
-  { word: 'Cookies garnis', image: 'cookies' },
-];
+/** Bandeau défilant : des mots seulement (aucune photo, pour ne rien répéter de la page). */
+const ribbon = ['Baguettes', 'Viennoiseries', 'Grands macarons', 'Entremets', 'Number cakes', 'Sandwichs', 'Cookies garnis'];
 
-/** Écrans plus larges que hauts : cadrage paysage ; sinon (téléphones, tablettes en portrait) : cadrage portrait. */
-const WIDE = '(min-aspect-ratio: 1/1)';
-const TALL = '(max-aspect-ratio: 1/1)';
-
-/** Image 4K en deux cadrages, optimisée par next/image (AVIF / WebP à la bonne largeur). */
+/**
+ * La devanture, image carrée 3200 px : en paysage elle couvre la largeur, sur téléphone la hauteur.
+ * `sizes` suit ce comportement pour que le navigateur charge une image assez grande (net sur écran Retina).
+ */
 function HeroPicture() {
-  const common = { alt: media.heroLandscape.alt, fill: true, sizes: '100vw', quality: 82 } as const;
-  const wide = getImageProps({ ...common, src: media.heroLandscape.src }).props;
-  const { srcSet: tall, ...img } = getImageProps({ ...common, src: media.heroPortrait.src }).props;
-  // Préchargement de la seule variante utile à l'écran (image principale = LCP).
-  preload(wide.src, { as: 'image', imageSrcSet: wide.srcSet, imageSizes: '100vw', fetchPriority: 'high', media: WIDE });
-  preload(img.src, { as: 'image', imageSrcSet: tall, imageSizes: '100vw', fetchPriority: 'high', media: TALL });
   return (
-    <picture>
-      <source media={WIDE} srcSet={wide.srcSet} sizes="100vw" />
-      {/* eslint-disable-next-line jsx-a11y/alt-text */}
-      <img {...img} srcSet={tall} fetchPriority="high" loading="eager" />
-    </picture>
+    <Image
+      src={media.devanture.src}
+      alt={media.devanture.alt}
+      fill
+      priority
+      quality={90}
+      sizes="(max-aspect-ratio: 1/1) 100vh, 100vw"
+    />
   );
 }
 
@@ -108,12 +96,9 @@ export function Hero({ week, exceptions }: { week: Interval[][]; exceptions: Day
         <div className="hero-ribbon-track">
           {[0, 1].map((copy) => (
             <ul key={copy}>
-              {ribbon.map((item) => (
-                <li key={item.word}>
-                  <span className="hero-ribbon-thumb">
-                    <Image src={media[item.image].src} alt="" fill sizes="64px" quality={70} />
-                  </span>
-                  {item.word}
+              {ribbon.map((word) => (
+                <li key={word}>
+                  {word}
                   <svg className="hero-ribbon-star" viewBox="0 0 20 20">
                     <path d="M10 1v18M1 10h18M3.6 3.6l12.8 12.8M16.4 3.6 3.6 16.4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
                   </svg>
