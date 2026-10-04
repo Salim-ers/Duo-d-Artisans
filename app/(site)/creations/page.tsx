@@ -3,7 +3,7 @@ import Link from 'next/link';
 import '../pages.css';
 import { media } from '@/data/media';
 import { galleryCategories } from '@/lib/labels';
-import { galleryItems } from '@/lib/content';
+import { galleryItems } from '@/lib/site-data';
 import { pageMetadata } from '@/lib/seo';
 import { Gallery } from '@/components/creations/Gallery';
 import { Split } from '@/components/ui/Split';
@@ -44,15 +44,15 @@ export default async function CreationsPage() {
       <section className="next-row" aria-label="Pour aller plus loin">
         <div className="wrap next-grid">
           <Link className="next-link" href="/commander">
-            <span>Une envie ?</span>
-            <b>
-              Commander <Arrow />
-            </b>
-          </Link>
-          <Link className="next-link" href="/commande-personnalisee">
             <span>Pour une occasion</span>
             <b>
-              Gâteau sur mesure <Arrow />
+              Commander un gâteau <Arrow />
+            </b>
+          </Link>
+          <Link className="next-link" href="/contact">
+            <span>Passer en boutique</span>
+            <b>
+              Horaires et accès <Arrow />
             </b>
           </Link>
         </div>

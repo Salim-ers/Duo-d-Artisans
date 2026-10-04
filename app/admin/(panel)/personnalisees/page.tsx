@@ -7,7 +7,7 @@ import type { CustomStatus } from '@/lib/db/schema';
 import { formatDate, formatDateTime, money } from '@/lib/format';
 import { customStatusLabel, customStatuses } from '@/lib/labels';
 
-export const metadata = { title: 'Commandes personnalisées' };
+export const metadata = { title: 'Commandes de gâteaux' };
 
 const groups: { key: string; label: string; statuses: CustomStatus[] }[] = [
   { key: 'a-traiter', label: 'À traiter', statuses: ['new_request', 'reviewing'] },
@@ -35,7 +35,7 @@ export default async function CustomListPage({ searchParams }: { searchParams: P
 
   return (
     <>
-      <PageTitle title="Commandes personnalisées" sub="Des demandes : rien n’est accepté d’office. Étudiez, envoyez un devis, puis suivez la préparation." />
+      <PageTitle title="Commandes de gâteaux" sub="Des demandes : rien n’est accepté d’office. Étudiez, envoyez un devis, puis suivez la réalisation." />
       <nav className="asegs" aria-label="Filtrer">
         <Link href="/admin/personnalisees" aria-current={!sp.status ? 'page' : undefined}>
           Toutes <small>{n(customStatuses)}</small>

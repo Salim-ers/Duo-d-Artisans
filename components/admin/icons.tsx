@@ -102,8 +102,6 @@ const paths: Record<string, React.ReactNode> = {
   menu: <path d="M4 7h16M4 12h16M4 17h16" />,
 };
 
-export type IconName = keyof typeof paths;
-
 export function AIcon({ name, className }: { name: string; className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} aria-hidden="true" {...p}>

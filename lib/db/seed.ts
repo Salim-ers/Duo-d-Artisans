@@ -1,9 +1,8 @@
 /**
  * Données initiales — exécutées une seule fois, sur une base vide.
  *
- * DONNÉES RÉELLES : familles de produits (celles du site existant), photographies de la boutique
- * (galerie) et horaires relevés. Rien d'autre : ni prix, ni produit, ni promotion.
- * Les produits, commandes et demandes d'exemple sont dans ./demo (tous marqués `is_demo`).
+ * DONNÉES RÉELLES : photographies de la boutique (galerie) et horaires relevés. Rien d'autre.
+ * Les demandes, clients et messages d'exemple sont dans ./demo (tous marqués `is_demo`).
  */
 import bcrypt from 'bcryptjs';
 import { eq, sql } from 'drizzle-orm';
@@ -12,16 +11,6 @@ import { defaultSettings } from '@/lib/settings-shared';
 import type { DB } from './index';
 import * as s from './schema';
 import { seedDemo } from './demo';
-
-/** Familles du site existant (textes repris de l'ancien catalogue éditorial). */
-export const families: { slug: string; name: string; tagline: string; image: MediaKey }[] = [
-  { slug: 'boulangerie', name: 'Boulangerie', tagline: 'Le quotidien, croustillant.', image: 'baguettesTradition' },
-  { slug: 'viennoiseries', name: 'Viennoiseries', tagline: 'Le feuilletage du matin.', image: 'painsChocolat' },
-  { slug: 'patisseries', name: 'Pâtisseries', tagline: 'La vitrine, pièce par pièce.', image: 'entremets' },
-  { slug: 'gourmandises', name: 'Gourmandises', tagline: 'Pour le goûter, ou sans raison.', image: 'cookies' },
-  { slug: 'snacking', name: 'Snacking', tagline: 'Le midi, préparé en boutique.', image: 'sandwichs' },
-  { slug: 'gateaux', name: 'Gâteaux & événements', tagline: 'Pour les jours qui comptent.', image: 'numberCake' },
-];
 
 /** Photographies réelles de la boutique → galerie administrable (ordre, catégorie, accueil). */
 const photos: { key: MediaKey; title: string; description: string; category: string; home?: boolean }[] = [
@@ -49,8 +38,6 @@ export async function seed(db: DB) {
   const done = await db.insert(s.counters).values({ key: 'seeded', value: 1 }).onConflictDoNothing().returning();
   if (!done.length) return;
 
-  await db.insert(s.categories).values(families.map((f, i) => ({ slug: f.slug, name: f.name, tagline: f.tagline, image: media[f.image].src, position: i })));
-
   await db.insert(s.gallery).values(
     photos.map((p, i) => ({
       src: media[p.key].src,
@@ -68,7 +55,7 @@ export async function seed(db: DB) {
   // Horaires relevés sur la fiche Google et en vitrine : données réelles, enregistrées.
   await db.insert(s.settings).values({ key: 'hours', value: defaultSettings.hours }).onConflictDoNothing();
 
-  await seedDemo(db, { withProducts: true });
+  await seedDemo(db);
 }
 
 /**

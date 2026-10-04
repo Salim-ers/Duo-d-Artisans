@@ -21,38 +21,26 @@ export default function PrivacyPage() {
       <h2>Données collectées et finalités</h2>
       <ul>
         <li>
-          <b>Commande en ligne</b> : prénom, nom, téléphone, e-mail, produits, créneau de retrait, remarque éventuelle — pour préparer la
-          commande, vous prévenir et vous la remettre.
-        </li>
-        <li>
-          <b>Commande personnalisée</b> : les mêmes coordonnées, la description de votre demande et, si vous en joignez, vos images
-          d’inspiration — pour étudier la demande et vous répondre. Ces images ne sont visibles que par l’équipe de la boutique.
+          <b>Commande de gâteau</b> : prénom, nom, téléphone, e-mail, description de votre demande et, si vous en joignez, vos images
+          d’inspiration — pour étudier la demande, vous envoyer une proposition et préparer le gâteau. Ces images ne sont visibles que
+          par l’équipe de la boutique.
         </li>
         <li>
           <b>Formulaire de contact</b> : nom, e-mail, téléphone facultatif et message — pour vous répondre.
         </li>
       </ul>
       <p>
-        Une fiche client regroupe vos commandes (nombre, montant, dates) afin que la boutique puisse retrouver votre historique.
-        Aucune donnée n’est revendue ni utilisée à des fins publicitaires. Base légale : exécution de la commande ou de la demande.
-      </p>
-
-      <h2>Paiement</h2>
-      <p>
-        Le paiement en ligne, lorsqu’il est proposé, est assuré par Stripe sur sa propre page sécurisée. La boutique ne reçoit ni ne
-        conserve aucune donnée de carte bancaire.
+        Une fiche client regroupe vos demandes afin que la boutique puisse retrouver votre historique. Aucune donnée n’est revendue ni
+        utilisée à des fins publicitaires. Base légale : traitement de votre demande. Aucun paiement n’est réalisé sur ce site.
       </p>
 
       <h2>Destinataires et sous-traitants</h2>
-      <p>
-        L’équipe de la boutique ; l’hébergeur du site ({site.legal.host.name}) ; l’hébergeur de la base de données ; le prestataire
-        d’envoi d’e-mails ; Stripe pour les paiements en ligne.
-      </p>
+      <p>L’équipe de la boutique ; l’hébergeur du site ({site.legal.host.name}) ; l’hébergeur de la base de données ; le prestataire d’envoi d’e-mails.</p>
 
       <h2>Durée de conservation</h2>
       <p>
-        Les données de commande sont conservées le temps nécessaire à la relation commerciale et aux obligations comptables. Les
-        messages et demandes non suivies de commande sont supprimés lorsqu’ils ne sont plus utiles.
+        Les demandes sont conservées le temps nécessaire à leur traitement et à la relation commerciale. Les messages sont supprimés
+        lorsqu’ils ne sont plus utiles.
       </p>
 
       <h2>Vos droits</h2>
@@ -63,9 +51,8 @@ export default function PrivacyPage() {
 
       <h2 id="cookies">Cookies et stockage local</h2>
       <p>
-        Ce site ne dépose aucun cookie de mesure d’audience ni de publicité : aucun bandeau n’est donc nécessaire. Votre panier est
-        conservé dans votre navigateur (stockage local) jusqu’à la commande. Le plan Google Maps de la page Contact n’est chargé que si
-        vous cliquez sur « Afficher le plan » : Google peut alors déposer ses propres cookies.
+        Ce site ne dépose aucun cookie de mesure d’audience ni de publicité : aucun bandeau n’est donc nécessaire. Le plan Google Maps
+        de la page Contact n’est chargé que si vous cliquez sur « Afficher le plan » : Google peut alors déposer ses propres cookies.
       </p>
     </article>
   );

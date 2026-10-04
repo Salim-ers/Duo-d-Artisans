@@ -148,3 +148,5 @@
 .track-facts dd { font-family: var(--f-serif-stack); font-size: 1.35rem; }
 .track-accept { display: grid; gap: 10px; justify-items: start; }
 @media (max-width: 560px) { .track-steps li { font-size: 0; } }
+.co-done { padding-block: clamp(40px, 6vw, 96px) var(--sp-l); display: grid; gap: 24px; justify-items: start; }
+.done-instructions { padding: 14px 18px; border-left: 3px solid var(--ble); background: var(--ivoire); font-family: var(--f-serif-stack); font-size: 1.2rem; }

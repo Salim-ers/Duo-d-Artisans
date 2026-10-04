@@ -16,6 +16,7 @@
   to { clip-path: inset(0 0 0 0 round 0 0 0 0); }
 }
 .hero-photo { position: absolute !important; inset: 0; background: var(--brun); }
+.hero-photo img { object-fit: cover; object-position: 60% 50%; }
 .hero-photo img { animation: hero-zoom 2.8s var(--ease-out) 0.1s both; }
 @keyframes hero-zoom { from { transform: scale(1.3); } to { transform: scale(1.04); } }
 .hero-veil {
@@ -83,15 +84,22 @@
   .hero-content { grid-template-columns: 1fr; row-gap: 26px; }
   .hero-aside { max-width: 520px; }
 }
+@media (max-aspect-ratio: 1/1) {
+  /* Écrans en hauteur : titre dans la zone calme du haut, boutons en bas, les pains au centre. */
+  .hero-photo img { object-position: 50% 78%; }
+  .hero-content { align-self: stretch; display: flex; flex-direction: column; align-items: stretch; padding-top: clamp(16px, 4svh, 40px); }
+  .hero-aside { flex: 1; display: flex; flex-direction: column; padding-bottom: 0; }
+  .hero-actions { margin-top: auto; }
+  .hero-veil {
+    background:
+      linear-gradient(180deg, rgba(28, 22, 18, 0.84) 0%, rgba(28, 22, 18, 0.55) 38%, rgba(28, 22, 18, 0) 58%),
+      linear-gradient(0deg, rgba(28, 22, 18, 0.55) 0%, rgba(28, 22, 18, 0) 26%);
+  }
+}
 @media (max-width: 700px) {
   .hero-stage { min-height: 560px; max-height: none; }
   .hero-title { font-size: clamp(3.2rem, 0.2rem + 16vw, 6rem); }
   .hero-kicker { flex-direction: column; font-size: 0.62rem; }
-  .hero-veil {
-    background:
-      linear-gradient(0deg, rgba(28, 22, 18, 0.96) 0%, rgba(28, 22, 18, 0.72) 50%, rgba(28, 22, 18, 0.12) 80%),
-      linear-gradient(180deg, rgba(28, 22, 18, 0.6), rgba(28, 22, 18, 0) 26%);
-  }
   .hero-actions .btn { flex: 1 1 auto; padding-inline: 18px; }
 }
 @media (max-width: 380px) {
@@ -179,36 +187,33 @@
   .mosaic-cap small { display: none; }
 }
 
-/* ---------- Collection du moment ---------- */
-.event { position: relative; isolation: isolate; min-height: min(78svh, 760px); display: flex; align-items: flex-end; color: var(--creme); background: var(--brun); overflow: hidden; }
-.event-photo { position: absolute !important; inset: 0; z-index: -2; }
-.event::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to top, rgba(28, 22, 18, 0.9), rgba(28, 22, 18, 0.15) 70%); }
-.event-body { display: grid; gap: 18px; justify-items: start; padding-block: var(--sp-l) var(--sp-m); }
-.event .kicker { color: var(--ble); }
-.event .t-lead { color: rgba(244, 238, 227, 0.82); }
-
-/* ---------- 4. COMMANDER ---------- */
-.order-teaser { padding-block: var(--sp-l); background: var(--ivoire); border-block: 1px solid var(--filet); }
-.ot-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(28px, 4vw, 64px); align-items: start; }
-.ot-today { display: grid; gap: clamp(24px, 3vw, 40px); align-content: start; }
-.ot-head { display: grid; gap: 16px; }
-.ot-products { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(14px, 2vw, 28px); }
-.ot-cake { position: sticky; top: calc(var(--mast) + 24px); display: grid; overflow: hidden; border-radius: 6px; background: var(--brun); color: var(--creme); }
-.ot-cake-photo { aspect-ratio: 4 / 3; }
-.ot-cake-body { display: grid; gap: 18px; justify-items: start; padding: clamp(24px, 3vw, 40px); }
-.ot-cake .kicker { color: var(--ble); }
-.ot-cake .t-l em { color: var(--ble); }
-.ot-occasions { width: 100%; border-top: 1px solid var(--filet-clair); }
-.ot-occasions a {
-  display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--filet-clair);
-  font-family: var(--f-serif-stack); font-size: 1.25rem; text-decoration: none; transition: padding 0.4s var(--ease-out), color 0.3s;
+/* ---------- 4. COMMANDER UN GÂTEAU ---------- */
+.cake { padding-block: var(--sp-l); background: var(--brun); color: var(--creme); }
+.cake-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(12px, 2vw, 28px); align-items: center; }
+.cake-media { grid-column: 1 / span 6; position: relative; }
+.cake-photo { aspect-ratio: 4 / 5; border-radius: 6px; }
+.cake-inset { position: absolute !important; width: 40%; aspect-ratio: 1; right: -7%; bottom: -7%; border-radius: 6px; outline: clamp(6px, 1vw, 12px) solid var(--brun); }
+.cake-body { grid-column: 8 / span 5; display: grid; gap: 22px; justify-items: start; }
+.cake .kicker { color: var(--ble); }
+.cake .t-l em { color: var(--ble); }
+.cake .t-lead { color: rgba(244, 238, 227, 0.78); }
+.cake-occasions { width: 100%; border-top: 1px solid var(--filet-clair); }
+.cake-occasions a {
+  display: flex; justify-content: space-between; align-items: center; padding: 13px 0; border-bottom: 1px solid var(--filet-clair);
+  font-family: var(--f-serif-stack); font-size: clamp(1.2rem, 1.05rem + 0.5vw, 1.5rem); text-decoration: none; transition: padding 0.4s var(--ease-out), color 0.3s;
 }
-.ot-occasions a:hover { padding-left: 10px; color: var(--ble-clair); }
-@media (max-width: 1000px) {
-  .ot-grid { grid-template-columns: 1fr; }
-  .ot-cake { position: static; }
+.cake-occasions a:hover { padding-left: 10px; color: var(--ble-clair); }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .cake-inset { animation: duo-float linear both; animation-timeline: view(); animation-range: cover; }
+  }
 }
-@media (max-width: 560px) { .ot-products { grid-template-columns: 1fr; } }
+@media (max-width: 900px) {
+  .cake-media, .cake-body { grid-column: 1 / -1; }
+  .cake-photo { aspect-ratio: 4 / 3; }
+  .cake-inset { width: 34%; right: 4%; }
+  .cake-body { margin-top: clamp(56px, 12vw, 96px); }
+}
 
 /* ---------- 5. LE DUO ---------- */
 .duo { padding-block: var(--sp-xl); }

@@ -47,7 +47,6 @@ export const phone = z
 
 export const email = z.string().max(160).trim().toLowerCase().pipe(z.string().email('Adresse e-mail invalide.'));
 export const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date invalide.');
-export const hhmm = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Heure invalide.');
 
 export const contactFields = {
   firstName: personName('Prénom'),
@@ -55,27 +54,6 @@ export const contactFields = {
   email,
   phone,
 };
-
-export const cartLine = z.object({
-  productId: z.string().uuid(),
-  variantId: z.string().uuid().nullable(),
-  flavorId: z.string().uuid().nullable(),
-  extraIds: z.array(z.string().uuid()).max(10),
-  quantity: z.number().int().min(1).max(99),
-});
-export type CartLineInput = z.infer<typeof cartLine>;
-
-export const orderInput = z.object({
-  items: z.array(cartLine).min(1, 'Votre panier est vide.').max(40),
-  pickupDate: isoDate,
-  pickupTime: hhmm,
-  ...contactFields,
-  note: optText(500, 'La remarque'),
-  paymentMethod: z.enum(['online', 'on_site'], { message: 'Choisissez un mode de paiement.' }),
-  promoCode: optText(40),
-  acceptTerms: z.literal(true, { errorMap: () => ({ message: 'Merci d’accepter les conditions de vente.' }) }),
-});
-export type OrderInput = z.input<typeof orderInput>;
 
 /** Demande personnalisée : jamais une commande acceptée d'office. */
 export const customInput = z.object({

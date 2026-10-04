@@ -41,8 +41,8 @@ export default function MentionsPage() {
 
       <h2>Propriété intellectuelle</h2>
       <p>
-        Les photographies présentées sur ce site appartiennent à {site.legal.name}. Toute reproduction
-        sans autorisation est interdite.
+        Les photographies présentées sur ce site appartiennent à {site.legal.name}. Le visuel de la page d’accueil
+        est une illustration photographique générée pour le site. Toute reproduction sans autorisation est interdite.
       </p>
     </article>
   );

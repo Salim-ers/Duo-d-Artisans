@@ -5,8 +5,8 @@ import { Submit } from '@/components/admin/ui';
 import { hasRole, requirePage } from '@/lib/auth/session';
 import { getDb, schema as s } from '@/lib/db';
 import { dayLabels, weekOrder } from '@/data/opening-hours';
-import { env, pushEnabled, stripeEnabled } from '@/lib/env';
-import { centsInput, formatDateTime } from '@/lib/format';
+import { env, pushEnabled } from '@/lib/env';
+import { formatDateTime } from '@/lib/format';
 import { roleLabel } from '@/lib/labels';
 import { getSetting, savedSettingKeys } from '@/lib/settings';
 import {
@@ -17,8 +17,6 @@ import {
   saveCustomSettings,
   saveHours,
   saveNotify,
-  saveOrdering,
-  savePayments,
   saveReviews,
   userCreate,
   userUpdate,
@@ -49,11 +47,9 @@ export default async function SettingsPage() {
   const user = await requirePage('STAFF');
   const admin = hasRole(user, 'ADMIN');
   const db = await getDb();
-  const [saved, hours, ordering, payments, custom, reviews, notify, catalog, users] = await Promise.all([
+  const [saved, hours, custom, reviews, notify, catalog, users] = await Promise.all([
     savedSettingKeys(),
     getSetting('hours'),
-    getSetting('ordering'),
-    getSetting('payments'),
     getSetting('custom'),
     getSetting('reviews'),
     getSetting('notify'),
@@ -63,21 +59,21 @@ export default async function SettingsPage() {
 
   return (
     <>
-      <PageTitle title="Paramètres" sub={admin ? 'Tout ce qui fait fonctionner la boutique en ligne, sans développeur.' : 'Votre compte'} />
+      <PageTitle title="Paramètres" sub={admin ? 'Horaires, commandes de gâteaux, avis, notifications et équipe.' : 'Votre compte'} />
       <div className="astack">
         {admin && (
           <>
             <Section id="demo" title="Mode démonstration">
               <p>
                 {catalog.demo ? (
-                  <b>Activé : les produits, commandes, demandes et messages d’exemple sont visibles (site et gestion), toujours signalés « Exemple ».</b>
+                  <b>Activé : des demandes, clients et messages d’exemple sont affichés dans la gestion, signalés « Exemple ». Rien n’apparaît sur le site.</b>
                 ) : (
-                  <b>Désactivé : seules les vraies données sont visibles. Aucune donnée d’exemple n’apparaît publiquement.</b>
+                  <b>Désactivé : seules les vraies demandes et les vrais messages sont visibles.</b>
                 )}
               </p>
               <form action={saveCatalog} className="abtns">
                 <input type="hidden" name="demo" value={catalog.demo ? '' : 'on'} />
-                <Submit className={catalog.demo ? 'abtn abtn--accent' : 'abtn abtn--ghost'} confirm={catalog.demo ? 'Passer en production ? Les données d’exemple seront masquées partout.' : undefined}>
+                <Submit className={catalog.demo ? 'abtn abtn--accent' : 'abtn abtn--ghost'} confirm={catalog.demo ? 'Masquer les exemples ? Seules les vraies demandes resteront visibles.' : undefined}>
                   {catalog.demo ? 'Désactiver (mise en production)' : 'Réactiver la démonstration'}
                 </Submit>
               </form>
@@ -87,7 +83,7 @@ export default async function SettingsPage() {
                 </form>
                 {hasRole(user, 'SUPER_ADMIN') && (
                   <form action={demoPurge}>
-                    <Submit className="abtn abtn--danger abtn--sm" confirm="Supprimer définitivement tous les produits, commandes, clients et messages d’exemple ?">
+                    <Submit className="abtn abtn--danger abtn--sm" confirm="Supprimer définitivement toutes les demandes, clients et messages d’exemple ?">
                       Supprimer toutes les données d’exemple
                     </Submit>
                   </form>
@@ -96,7 +92,7 @@ export default async function SettingsPage() {
             </Section>
 
             <Section id="horaires" title="Horaires d’ouverture" saved={saved.has('hours')}>
-              <p className="amuted">Affichés partout sur le site (statut « ouvert / fermé », pied de page, Google via les données structurées) et utilisés pour les créneaux. Les fermetures ponctuelles se gèrent dans le Planning.</p>
+              <p className="amuted">Affichés partout sur le site (statut « ouvert / fermé », pied de page, Google via les données structurées). Les fermetures ponctuelles se gèrent dans le Planning.</p>
               <form action={saveHours} className="aform">
                 <div className="atable-wrap">
                   <table className="atable">
@@ -141,67 +137,7 @@ export default async function SettingsPage() {
               </form>
             </Section>
 
-            <Section id="commande" title="Commande en ligne et créneaux de retrait" saved={saved.has('ordering')}>
-              <form action={saveOrdering} className="aform">
-                <label className="acheck">
-                  <input type="checkbox" name="enabled" defaultChecked={ordering.enabled} /> Commande en ligne ouverte
-                </label>
-                <div className="afield">
-                  <span>Jours où le retrait est proposé</span>
-                  <div className="adays">
-                    {weekOrder.map((d) => (
-                      <label key={d}>
-                        <input type="checkbox" name={`pickup-${d}`} defaultChecked={ordering.pickupDays[d]} />
-                        <span>{dayLabels[d]!.slice(0, 3)}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div className="aform aform--grid">
-                  <F label="Durée d’un créneau (min)">
-                    <input type="number" name="slotMinutes" min={10} max={120} step={5} defaultValue={ordering.slotMinutes} />
-                  </F>
-                  <F label="Commandes max. par créneau">
-                    <input type="number" name="slotCapacity" min={1} max={200} defaultValue={ordering.slotCapacity} />
-                  </F>
-                  <F label="Délai minimal de préparation (h)">
-                    <input type="number" name="minLeadHours" min={0} max={336} defaultValue={Math.floor(ordering.minLeadMinutes / 60)} />
-                  </F>
-                  <F label="… et minutes">
-                    <input type="number" name="minLeadMinutes" min={0} max={59} defaultValue={ordering.minLeadMinutes % 60} />
-                  </F>
-                  <F label="Commande jusqu’à (jours à l’avance)">
-                    <input type="number" name="maxDaysAhead" min={1} max={90} defaultValue={ordering.maxDaysAhead} />
-                  </F>
-                  <F label="Premier retrait après l’ouverture (min)">
-                    <input type="number" name="firstPickupAfterOpenMinutes" min={0} max={240} defaultValue={ordering.firstPickupAfterOpenMinutes} />
-                  </F>
-                  <F label="Dernier retrait avant la fermeture (min)">
-                    <input type="number" name="lastPickupBeforeCloseMinutes" min={0} max={240} defaultValue={ordering.lastPickupBeforeCloseMinutes} />
-                  </F>
-                  <F label="Instructions sur la confirmation" full>
-                    <input name="instructions" maxLength={400} defaultValue={ordering.instructions} />
-                  </F>
-                </div>
-                <p className="amuted">Délais et jours propres à un produit (ex. gâteau 72 h à l’avance) : dans la fiche du produit. Fermetures exceptionnelles et capacités ponctuelles : dans le Planning.</p>
-                <Submit>Enregistrer</Submit>
-              </form>
-            </Section>
-
-            <Section id="paiement" title="Paiement" saved={saved.has('payments')}>
-              {!stripeEnabled() && <p className="awarn">Stripe n’est pas configuré (STRIPE_SECRET_KEY) : le paiement en ligne reste masqué même s’il est coché.</p>}
-              <form action={savePayments} className="aform">
-                <label className="acheck">
-                  <input type="checkbox" name="online" defaultChecked={payments.online} /> Paiement en ligne (Stripe Checkout — CB, Apple Pay, Google Pay)
-                </label>
-                <label className="acheck">
-                  <input type="checkbox" name="onSite" defaultChecked={payments.onSite} /> Paiement en boutique au retrait
-                </label>
-                <Submit>Enregistrer</Submit>
-              </form>
-            </Section>
-
-            <Section id="personnalisees" title="Commandes personnalisées" saved={saved.has('custom')}>
+            <Section id="personnalisees" title="Commandes de gâteaux" saved={saved.has('custom')}>
               <form action={saveCustomSettings} className="aform aform--grid">
                 <F label="Types de création proposés (un par ligne)" full>
                   <textarea name="types" rows={6} defaultValue={custom.types.join('\n')} />
@@ -234,30 +170,17 @@ export default async function SettingsPage() {
 
             <Section id="notifications" title="Notifications" saved={saved.has('notify')}>
               <form action={saveNotify} className="aform aform--grid">
-                <F label="E-mail de l’équipe (nouvelles commandes, demandes, messages)" full>
+                <F label="E-mail de l’équipe (nouvelles demandes, messages)" full>
                   <input name="staffEmail" type="email" defaultValue={notify.staffEmail ?? env.staffEmail ?? ''} />
                 </F>
                 <label className="acheck">
-                  <input type="checkbox" name="emailOnConfirmed" defaultChecked={notify.emailOnConfirmed} /> E-mail au client quand la commande est confirmée
+                  <input type="checkbox" name="sound" defaultChecked={notify.sound} /> Carillon court dans la gestion à l’arrivée d’une demande ou d’un message
                 </label>
-                <label className="acheck">
-                  <input type="checkbox" name="emailOnReady" defaultChecked={notify.emailOnReady} /> E-mail au client quand la commande est prête
-                </label>
-                <F label="Signal sonore dans la gestion">
-                  <select name="sound" defaultValue={notify.sound}>
-                    <option value="all">À chaque nouvelle commande ou demande</option>
-                    <option value="large">Seulement pour les commandes importantes</option>
-                    <option value="off">Jamais</option>
-                  </select>
-                </F>
-                <F label="Commande importante à partir de (€)">
-                  <input name="largeOrder" inputMode="decimal" defaultValue={centsInput(notify.largeOrderCents)} />
-                </F>
                 <Submit>Enregistrer</Submit>
               </form>
               <p className="amuted">
-                Le son est un carillon court, joué une seule fois (jamais en boucle). Sur la tablette, utilisez « Activer les notifications » en bas du menu
-                {pushEnabled() ? ' : les notifications push arrivent même gestion fermée.' : ' (push hors application : ajoutez VAPID_PUBLIC_KEY et VAPID_PRIVATE_KEY).'}
+                Le son est joué une seule fois, jamais en boucle. Sur téléphone ou tablette, utilisez « Activer les notifications » en bas du menu
+                {pushEnabled() ? ' : les notifications arrivent même gestion fermée.' : ' (pour les recevoir gestion fermée : ajoutez VAPID_PUBLIC_KEY et VAPID_PRIVATE_KEY).'}
               </p>
             </Section>
 
@@ -321,8 +244,8 @@ export default async function SettingsPage() {
                 </F>
                 <F label="Rôle">
                   <select name="role" defaultValue="STAFF">
-                    <option value="STAFF">Équipe — commandes, production, planning, stock, messages</option>
-                    {hasRole(user, 'SUPER_ADMIN') && <option value="ADMIN">Administrateur — + catalogue, promotions, paramètres</option>}
+                    <option value="STAFF">Équipe — demandes, planning, clients, messages</option>
+                    {hasRole(user, 'SUPER_ADMIN') && <option value="ADMIN">Administrateur — + galerie et paramètres</option>}
                     {hasRole(user, 'SUPER_ADMIN') && <option value="SUPER_ADMIN">Super administrateur — + gestion des administrateurs</option>}
                   </select>
                 </F>
@@ -334,8 +257,6 @@ export default async function SettingsPage() {
               <ul className="atodo">
                 {[
                   ['Base de données permanente', !!env.databaseUrl, 'DATABASE_URL (Neon via Vercel → Storage)'],
-                  ['Paiement en ligne Stripe', stripeEnabled(), 'STRIPE_SECRET_KEY'],
-                  ['Webhook Stripe', !!env.stripeWebhookSecret, 'STRIPE_WEBHOOK_SECRET'],
                   ['Envoi d’e-mails (Resend)', !!env.resendKey, 'RESEND_API_KEY + EMAIL_FROM'],
                   ['Notifications push', pushEnabled(), 'VAPID_PUBLIC_KEY + VAPID_PRIVATE_KEY'],
                 ].map(([label, ok, vars]) => (

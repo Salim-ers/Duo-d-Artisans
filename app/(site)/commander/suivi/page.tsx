@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import '../../pages.css';
-import '../../shop-pages.css';
 import { site } from '@/data/site';
 import { acceptCustomQuote } from '@/app/(site)/actions';
 import { findCustomForCustomer } from '@/lib/custom';

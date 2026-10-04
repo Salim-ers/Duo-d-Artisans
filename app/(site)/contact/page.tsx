@@ -36,9 +36,9 @@ export default async function ContactPage() {
               <a className="lnk" href={site.phone.href}>
                 {site.phone.display}
               </a>
-              . Pour un gâteau sur mesure, utilisez plutôt la{' '}
-              <a className="lnk" href="/commande-personnalisee">
-                commande personnalisée
+              . Pour un gâteau sur mesure, passez plutôt par la page{' '}
+              <a className="lnk" href="/commander">
+                Commander
               </a>
               .
             </p>

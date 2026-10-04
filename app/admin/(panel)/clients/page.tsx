@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { DemoTag, Empty, PageTitle } from '@/components/admin/bits';
 import { listCustomers } from '@/lib/admin';
-import { formatDateTime, money } from '@/lib/format';
+import { formatDateTime } from '@/lib/format';
 
 export const metadata = { title: 'Clients' };
 
-/** Fiches créées automatiquement à la première commande ou demande. Seules les données utiles sont conservées. */
+/** Fiches créées automatiquement à la première demande. Seules les données utiles sont conservées. */
 export default async function CustomersPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const sp = await searchParams;
   const rows = await listCustomers(sp.q);
@@ -31,13 +31,12 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
                 <th>Nom</th>
                 <th>Téléphone</th>
                 <th>E-mail</th>
-                <th className="num">Commandes</th>
-                <th className="num">Montant total</th>
-                <th>Dernière commande</th>
+                <th className="num">Demandes</th>
+                <th>Dernière demande</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map(({ c, n, total, last }) => (
+              {rows.map(({ c, n, last }) => (
                 <tr key={c.id}>
                   <td>
                     <Link href={`/admin/clients/${c.id}`} className="atable-link">
@@ -50,7 +49,6 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
                   </td>
                   <td>{c.email}</td>
                   <td className="num">{n}</td>
-                  <td className="num">{money(total)}</td>
                   <td className="nowrap">{last ? formatDateTime(last) : '—'}</td>
                 </tr>
               ))}
@@ -58,7 +56,7 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
           </table>
         </div>
       ) : (
-        <Empty>Aucun client pour le moment : les fiches se créent automatiquement à la première commande.</Empty>
+        <Empty>Aucun client pour le moment : les fiches se créent automatiquement à la première demande.</Empty>
       )}
     </>
   );

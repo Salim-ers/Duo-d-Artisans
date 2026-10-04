@@ -4,7 +4,6 @@ const isDev = process.env.NODE_ENV !== 'production';
  * CSP statique :
  * - 'unsafe-inline' pour les scripts est requis par l'hydratation Next sans nonce
  *   (un nonce imposerait un rendu dynamique de toutes les pages) ; aucune 'unsafe-eval' en production ;
- * - Stripe Checkout est une page hébergée par Stripe (redirection) : aucun script Stripe chargé ici ;
  * - Google Maps (iframe à la demande), Cloudflare Turnstile (facultatif), vercel.live (prévisualisations).
  */
 const csp = [
@@ -18,7 +17,7 @@ const csp = [
   "manifest-src 'self'",
   'frame-src https://www.google.com https://maps.google.com https://challenges.cloudflare.com https://vercel.live',
   "frame-ancestors 'none'",
-  "form-action 'self' https://checkout.stripe.com",
+  "form-action 'self'",
   "base-uri 'self'",
   "object-src 'none'",
   ...(isDev ? [] : ['upgrade-insecure-requests']),
@@ -52,7 +51,7 @@ const nextConfig = {
   },
   images: {
     formats: ['image/avif', 'image/webp'],
-    deviceSizes: [360, 480, 640, 828, 1080, 1280, 1440, 1672, 1920, 2560, 3344],
+    deviceSizes: [360, 480, 640, 828, 1080, 1280, 1440, 1672, 1920, 2560, 3840],
     imageSizes: [96, 160, 256, 384],
     qualities: [70, 75, 82, 90],
     minimumCacheTTL: 2678400,
@@ -70,7 +69,13 @@ const nextConfig = {
       { source: '/la-maison', destination: '/#le-duo', permanent: true },
       { source: '/savoir-faire', destination: '/#le-duo', permanent: true },
       { source: '/nos-creations', destination: '/creations', permanent: true },
-      { source: '/commandes', destination: '/commande-personnalisee', permanent: true },
+      { source: '/commandes', destination: '/commander', permanent: true },
+      // La commande en ligne avec prix a été retirée : tout passe par la commande de gâteau sur mesure.
+      { source: '/commande-personnalisee', destination: '/commander', permanent: true },
+      { source: '/commande-personnalisee/suivi', destination: '/commander/suivi', permanent: true },
+      { source: '/panier', destination: '/commander', permanent: true },
+      { source: '/commande', destination: '/commander', permanent: true },
+      { source: '/conditions-de-vente', destination: '/mentions-legales', permanent: true },
     ];
   },
 };

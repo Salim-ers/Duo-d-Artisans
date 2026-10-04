@@ -24,8 +24,6 @@ export const env = {
   authSecret: process.env.AUTH_SECRET || null,
   adminEmail: process.env.ADMIN_EMAIL || null,
   adminPassword: process.env.ADMIN_PASSWORD || null,
-  stripeSecret: process.env.STRIPE_SECRET_KEY || null,
-  stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET || null,
   resendKey: process.env.RESEND_API_KEY || null,
   emailFrom: process.env.EMAIL_FROM || process.env.CONTACT_FROM_EMAIL || 'Le Duo d’Artisans <onboarding@resend.dev>',
   staffEmail: process.env.STAFF_EMAIL || process.env.CONTACT_TO_EMAIL || null,
@@ -53,4 +51,3 @@ export async function authSecret(): Promise<Uint8Array> {
 export const canSignSessions = () => !env.isProd || !!env.databaseUrl || (!!env.authSecret && env.authSecret.length >= 32);
 
 export const pushEnabled = () => !!env.vapidPublic && !!env.vapidPrivate;
-export const stripeEnabled = () => !!env.stripeSecret;

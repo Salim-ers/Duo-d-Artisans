@@ -6,14 +6,14 @@ import 'server-only';
  */
 import { fullAddress, site } from '@/data/site';
 import { getDb, schema as s } from '@/lib/db';
-import type { CustomOrder, Order, OrderItem } from '@/lib/db/schema';
+import type { CustomOrder } from '@/lib/db/schema';
 import { env } from '@/lib/env';
 import { formatDate, formatTime, money } from '@/lib/format';
 import { pushToStaff } from '@/lib/push';
 import { logError } from '@/lib/security';
 import { getSetting } from '@/lib/settings';
 
-type Ref = { orderId?: string | null; customOrderId?: string | null; isDemo?: boolean };
+type Ref = { customOrderId?: string | null; isDemo?: boolean };
 
 async function record(v: typeof s.notifications.$inferInsert) {
   try {
@@ -88,45 +88,9 @@ ${cta ? `<p style="margin:26px 0 0"><a href="${esc(cta.href)}" style="display:in
   return { subject: `${title} — ${site.displayName}`, html, text };
 }
 
-function itemsTable(items: OrderItem[]) {
-  const body = items
-    .map(
-      (i) =>
-        `<tr><td style="padding:8px 0;border-bottom:1px solid #EFE7DA;font-size:14px;color:#2A2018">${i.quantity} × ${esc(i.name)}${i.variantLabel ? ' — ' + esc(i.variantLabel) : ''}${i.options ? `<br><span style="color:#8A7562;font-size:13px">${esc(i.options)}</span>` : ''}</td><td align="right" style="padding:8px 0;border-bottom:1px solid #EFE7DA;font-size:14px;white-space:nowrap">${money(i.unitPriceCents * i.quantity)}</td></tr>`,
-    )
-    .join('');
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:6px 0 18px">${body}</table>`;
-}
-
-export const orderUrl = (o: Pick<Order, 'number' | 'accessToken'>) => `${env.siteUrl}/commande?n=${encodeURIComponent(o.number)}&t=${o.accessToken}`;
-export const customUrl = (c: Pick<CustomOrder, 'number' | 'accessToken'>) =>
-  `${env.siteUrl}/commande-personnalisee/suivi?n=${encodeURIComponent(c.number)}&t=${c.accessToken}`;
-
-const pickupLine = (o: Pick<Order, 'pickupDate' | 'pickupTime'>) => `Retrait le ${formatDate(o.pickupDate)} à ${formatTime(o.pickupTime)} — ${fullAddress}.`;
-
-const paymentLine = (o: Order) =>
-  o.paymentMethod === 'on_site'
-    ? `Total : ${money(o.totalCents)} — à régler en boutique au retrait.`
-    : o.amountPaidCents >= o.totalCents
-      ? `Total : ${money(o.totalCents)} — payé en ligne.`
-      : `Total : ${money(o.totalCents)}.`;
+export const customUrl = (c: Pick<CustomOrder, 'number' | 'accessToken'>) => `${env.siteUrl}/commander/suivi?n=${encodeURIComponent(c.number)}&t=${c.accessToken}`;
 
 export const mails = {
-  orderReceived: (o: Order, items: OrderItem[]) =>
-    layout(`Commande reçue n° ${o.number}`, [p(`Bonjour ${o.firstName}, merci pour votre commande : nous l’avons bien reçue.`), itemsTable(items), p(paymentLine(o)), p(pickupLine(o))], {
-      label: 'Voir ma commande',
-      href: orderUrl(o),
-    }),
-  orderConfirmed: (o: Order) =>
-    layout(`Commande confirmée n° ${o.number}`, [p(`Bonjour ${o.firstName}, votre commande est confirmée.`), p(pickupLine(o))], { label: 'Voir ma commande', href: orderUrl(o) }),
-  orderReady: (o: Order) =>
-    layout('Votre commande est prête', [p(`Bonjour ${o.firstName}, votre commande n° ${o.number} est prête : elle vous attend en boutique.`), p(pickupLine(o)), p(paymentLine(o))], {
-      label: 'Voir ma commande',
-      href: orderUrl(o),
-    }),
-  orderCancelled: (o: Order) =>
-    layout(`Commande annulée n° ${o.number}`, [p(`Bonjour ${o.firstName}, votre commande a été annulée. Pour toute question, appelez la boutique au ${site.phone.display}.`)]),
-
   customReceived: (c: CustomOrder) =>
     layout('Demande reçue', [
       p(`Bonjour ${c.firstName}, merci pour votre demande. Elle n’est pas encore une commande : la boutique l’étudie puis revient vers vous pour confirmer faisabilité et tarif.`),

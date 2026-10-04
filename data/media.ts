@@ -17,12 +17,21 @@ export const media = {
     width: 1672,
     height: 941,
   },
-  /** Façade agrandie ×2 (lanczos + accentuation) pour le hero plein écran. */
-  facadeHd: {
-    src: '/images/facade/le-duo-artisans-rantigny-facade-hd.webp',
-    alt: "Façade bleue de la boulangerie Le Duo d'Artisans, 7 rue Anatole France à Rantigny",
-    width: 3344,
-    height: 1882,
+  /**
+   * Visuel d'accueil (illustration photographique générée, 4K) : pains et pâtisseries sur comptoir.
+   * Deux cadrages : paysage (écrans larges) et portrait (téléphones).
+   */
+  heroLandscape: {
+    src: '/images/accueil/le-duo-artisans-pains-patisseries-4k.webp',
+    alt: 'Baguettes, croissants, pains au chocolat, éclairs, tartelettes et macarons sur un comptoir en bois',
+    width: 3840,
+    height: 2160,
+  },
+  heroPortrait: {
+    src: '/images/accueil/le-duo-artisans-pains-patisseries-portrait.webp',
+    alt: 'Baguettes, croissants, pains au chocolat, éclairs, tartelettes et macarons sur un comptoir en bois',
+    width: 2160,
+    height: 3840,
   },
   baguettesTradition: {
     src: '/images/boulangerie/le-duo-artisans-baguettes-tradition.webp',

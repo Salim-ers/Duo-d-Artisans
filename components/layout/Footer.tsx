@@ -46,12 +46,12 @@ export function Footer({ week }: { week: Interval[][] }) {
           </div>
 
           <div>
-            <h2 className="footer-h">Commander</h2>
+            <h2 className="footer-h">Sur mesure</h2>
             <p>
-              <Link href="/commander">Retrait en boutique</Link>
+              <Link href="/commander">Commander un gâteau</Link>
             </p>
             <p style={{ marginTop: 4 }}>
-              <Link href="/commande-personnalisee">Gâteau sur mesure</Link>
+              <Link href="/creations">Nos créations</Link>
             </p>
             {socials.length > 0 && (
               <p style={{ marginTop: 16 }}>
@@ -72,7 +72,6 @@ export function Footer({ week }: { week: Interval[][] }) {
           <nav aria-label="Informations légales">
             <Link href="/mentions-legales">Mentions légales</Link>
             <Link href="/politique-confidentialite">Confidentialité</Link>
-            <Link href="/conditions-de-vente">Conditions de vente</Link>
           </nav>
         </div>
       </div>

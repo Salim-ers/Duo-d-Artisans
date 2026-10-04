@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import Image, { getImageProps } from 'next/image';
+import { preload } from 'react-dom';
 import { media, type MediaKey } from '@/data/media';
 import type { Interval } from '@/data/opening-hours';
 import type { DayException } from '@/lib/hours';
-import { Photo } from '@/components/ui/Photo';
 import { OpenNowLine } from '@/components/ui/OpenNow';
 import { Arrow } from '@/components/ui/Arrow';
 
@@ -30,8 +30,29 @@ const ribbon: { word: string; image: MediaKey }[] = [
   { word: 'Cookies garnis', image: 'cookies' },
 ];
 
+/** Écrans plus larges que hauts : cadrage paysage ; sinon (téléphones, tablettes en portrait) : cadrage portrait. */
+const WIDE = '(min-aspect-ratio: 1/1)';
+const TALL = '(max-aspect-ratio: 1/1)';
+
+/** Image 4K en deux cadrages, optimisée par next/image (AVIF / WebP à la bonne largeur). */
+function HeroPicture() {
+  const common = { alt: media.heroLandscape.alt, fill: true, sizes: '100vw', quality: 82 } as const;
+  const wide = getImageProps({ ...common, src: media.heroLandscape.src }).props;
+  const { srcSet: tall, ...img } = getImageProps({ ...common, src: media.heroPortrait.src }).props;
+  // Préchargement de la seule variante utile à l'écran (image principale = LCP).
+  preload(wide.src, { as: 'image', imageSrcSet: wide.srcSet, imageSizes: '100vw', fetchPriority: 'high', media: WIDE });
+  preload(img.src, { as: 'image', imageSrcSet: tall, imageSizes: '100vw', fetchPriority: 'high', media: TALL });
+  return (
+    <picture>
+      <source media={WIDE} srcSet={wide.srcSet} sizes="100vw" />
+      {/* eslint-disable-next-line jsx-a11y/alt-text */}
+      <img {...img} srcSet={tall} fetchPriority="high" loading="eager" />
+    </picture>
+  );
+}
+
 /**
- * Hero plein cadre : la façade s'ouvre comme une vitrine en arche, le nom se compose lettre à lettre,
+ * Hero plein cadre : l'image s'ouvre comme une vitrine en arche, le nom se compose lettre à lettre,
  * puis la vitrine du jour défile. Tout est en CSS : sans JavaScript, le hero s'affiche dans son état final.
  */
 export function Hero({ week, exceptions }: { week: Interval[][]; exceptions: DayException[] }) {
@@ -39,7 +60,9 @@ export function Hero({ week, exceptions }: { week: Interval[][]; exceptions: Day
     <section className="hero" aria-labelledby="hero-title">
       <div className="hero-stage">
         <div className="hero-media">
-          <Photo image={media.facadeHd} sizes="(max-aspect-ratio: 3/2) 130vh, 100vw" priority quality={75} position="50% 38%" reveal={false} className="hero-photo" />
+          <div className="photo hero-photo">
+            <HeroPicture />
+          </div>
         </div>
         <div className="hero-veil" aria-hidden="true" />
 
@@ -71,7 +94,7 @@ export function Hero({ week, exceptions }: { week: Interval[][]; exceptions: Day
             <OpenNowLine week={week} exceptions={exceptions} className="hero-now" />
             <p className="hero-actions">
               <Link className="btn btn--light" href="/commander">
-                Commander <Arrow />
+                Commander un gâteau <Arrow />
               </Link>
               <Link className="btn btn--line-light" href="/creations">
                 Découvrir nos créations

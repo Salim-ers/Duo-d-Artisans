@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import type { Category, Event, GalleryItem } from '@/lib/db/schema';
-import type { ProductView } from '@/lib/catalog';
+import type { GalleryItem } from '@/lib/db/schema';
 import type { Interval } from '@/data/opening-hours';
 import type { DayException } from '@/lib/hours';
 import type { ReviewsSettings } from '@/lib/settings-shared';
 import { media } from '@/data/media';
+import { families } from '@/data/families';
 import { reviewsUrl, site, fullAddress } from '@/data/site';
 import { galleryCategories } from '@/lib/labels';
 import { Photo } from '@/components/ui/Photo';
@@ -14,32 +14,30 @@ import { Arrow } from '@/components/ui/Arrow';
 import { StarIcon } from '@/components/ui/Icons';
 import { OpenNowBig } from '@/components/ui/OpenNow';
 import { HoursTable } from '@/components/ui/HoursTable';
-import { ProductCard } from '@/components/shop/ProductCard';
 
-/* ---------- 2. Catégories : six grandes images, un geste ---------- */
-export function Categories({ categories }: { categories: Category[] }) {
-  if (!categories.length) return null;
+/* ---------- 2. Les familles : six grandes images, un geste ---------- */
+export function Categories() {
   return (
     <section className="cats" aria-labelledby="cats-title">
       <div className="wrap cats-head">
         <Split id="cats-title" lines={['La boutique,', { em: 'rayon par rayon.' }]} className="t-l" />
-        <Link className="lnk" href="/commander">
-          Tout le catalogue <Arrow />
+        <Link className="lnk" href="/creations">
+          Toutes les créations <Arrow />
         </Link>
       </div>
       <ul className="cats-row" role="list">
-        {categories.map((c, i) => (
-          <li key={c.id} className="cat" data-reveal style={{ ['--i' as string]: i }}>
-            <Link href={`/commander?categorie=${c.slug}`} className="cat-link">
+        {families.map((f, i) => (
+          <li key={f.name} className="cat" data-reveal style={{ ['--i' as string]: i }}>
+            <Link href={f.href} className="cat-link">
               <span className="cat-media">
-                {c.image && <Image src={c.image} alt="" fill sizes="(max-width: 900px) 74vw, 34vw" quality={75} />}
+                <Image src={media[f.image].src} alt="" fill sizes="(max-width: 900px) 74vw, 34vw" quality={75} />
               </span>
               <span className="cat-text">
                 <span className="cat-n">{String(i + 1).padStart(2, '0')}</span>
-                <span className="cat-name">{c.name}</span>
-                {c.tagline && <span className="cat-line">{c.tagline}</span>}
+                <span className="cat-name">{f.name}</span>
+                <span className="cat-line">{f.tagline}</span>
                 <span className="cat-cta">
-                  Commander <Arrow />
+                  {f.href === '/commander' ? 'Commander' : 'Découvrir'} <Arrow />
                 </span>
               </span>
             </Link>
@@ -86,85 +84,43 @@ export function CreationsMosaic({ items }: { items: GalleryItem[] }) {
   );
 }
 
-/* ---------- 4. Commander ---------- */
+/* ---------- 4. Commander un gâteau sur mesure ---------- */
 const occasions = [
   { label: 'Anniversaire', type: 'Anniversaire' },
   { label: 'Number cake', type: 'Number cake' },
+  { label: 'Entremets', type: 'Entremets' },
   { label: 'Dessert à partager', type: 'Dessert à partager' },
   { label: 'Événement', type: 'Événement' },
-  { label: 'Demande personnalisée', type: 'Autre' },
+  { label: 'Autre envie', type: 'Autre' },
 ];
 
-export function OrderTeaser({ products, orderingOpen }: { products: ProductView[]; orderingOpen: boolean }) {
+export function CakeTeaser() {
   return (
-    <section className="order-teaser" aria-label="Commander">
-      <div className="wrap ot-grid">
-        <div className="ot-today">
-          <div className="ot-head">
-            <span className="kicker">Retrait en boutique</span>
-            <Split lines={['Une envie', { em: 'pour aujourd’hui ?' }]} className="t-l" />
-            <p className="t-lead" data-reveal>
-              {orderingOpen
-                ? 'Commandez en quelques gestes, choisissez votre créneau, récupérez en boutique.'
-                : `La commande en ligne ouvre bientôt. En attendant : ${site.phone.display}.`}
-            </p>
-          </div>
-          {products.length > 0 && (
-            <div className="ot-products">
-              {products.slice(0, 4).map((p, i) => (
-                <ProductCard key={p.id} product={p} orderingOpen={orderingOpen} index={i} />
-              ))}
-            </div>
-          )}
-          <p>
-            <Link className="btn btn--primary" href="/commander">
-              Commander <Arrow />
-            </Link>
+    <section className="cake" aria-labelledby="cake-title">
+      <div className="wrap cake-grid">
+        <div className="cake-media">
+          <Photo image={media.numberCake} sizes="(max-width: 900px) 92vw, 46vw" className="cake-photo" />
+          <Photo image={media.gateauFruits} sizes="(max-width: 900px) 44vw, 18vw" className="cake-inset" index={2} />
+        </div>
+        <div className="cake-body">
+          <span className="kicker">Sur mesure</span>
+          <Split id="cake-title" lines={['Un gâteau', { em: 'pour une occasion ?' }]} className="t-l" />
+          <p className="t-lead" data-reveal>
+            Décrivez votre envie : la boutique étudie votre demande et revient vers vous avec une proposition.
           </p>
+          <ul className="cake-occasions">
+            {occasions.map((o, i) => (
+              <li key={o.label} data-reveal style={{ ['--i' as string]: i }}>
+                <Link href={`/commander?type=${encodeURIComponent(o.type)}`}>
+                  {o.label} <Arrow />
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <Link className="btn btn--light" href="/commander">
+            Commander un gâteau <Arrow />
+          </Link>
         </div>
-
-        <div className="ot-cake">
-          <Photo image={media.numberCake} sizes="(max-width: 900px) 100vw, 40vw" className="ot-cake-photo" reveal={false} />
-          <div className="ot-cake-body">
-            <span className="kicker">Sur mesure</span>
-            <h2 className="t-l">
-              Un gâteau
-              <br />
-              <em>pour une occasion&nbsp;?</em>
-            </h2>
-            <ul className="ot-occasions">
-              {occasions.map((o) => (
-                <li key={o.label}>
-                  <Link href={`/commande-personnalisee?type=${encodeURIComponent(o.type)}`}>
-                    {o.label} <Arrow />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <Link className="btn btn--light" href="/commande-personnalisee">
-              Créer ma demande <Arrow />
-            </Link>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------- Collection du moment (événement publié, dans sa période) ---------- */
-export function EventBanner({ event }: { event: Event }) {
-  return (
-    <section className="event" aria-labelledby="event-title">
-      {event.image && <Photo image={{ src: event.image, alt: '' }} sizes="100vw" className="event-photo" reveal={false} />}
-      <div className="wrap event-body">
-        <span className="kicker">En ce moment{event.isDemo ? ' · Exemple' : ''}</span>
-        <h2 id="event-title" className="t-xl">
-          {event.headline || event.name}
-        </h2>
-        {event.text && <p className="t-lead">{event.text}</p>}
-        <Link className="btn btn--light" href={`/commander?collection=${event.slug}`}>
-          {event.ctaLabel || 'Découvrir la collection'} <Arrow />
-        </Link>
       </div>
     </section>
   );

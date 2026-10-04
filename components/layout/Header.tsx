@@ -4,17 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { nav, site, fullAddress } from '@/data/site';
-import { BagIcon } from '@/components/ui/Icons';
 import { Arrow } from '@/components/ui/Arrow';
-import { useCart } from '@/components/shop/CartProvider';
-
-export function CartCount({ count, bump }: { count: number; bump: number }) {
-  return (
-    <span className="cart-count" data-zero={count === 0 || undefined} key={bump} data-bump={bump ? '' : undefined}>
-      {count}
-    </span>
-  );
-}
 
 export function Header() {
   const [open, setOpen] = useState(false);
@@ -22,7 +12,6 @@ export function Header() {
   const pathname = usePathname();
   const panel = useRef<HTMLDivElement>(null);
   const toggle = useRef<HTMLButtonElement>(null);
-  const { count, bump, setOpen: openCart, ready } = useCart();
   const home = pathname === '/';
 
   useEffect(() => setOpen(false), [pathname]);
@@ -100,13 +89,8 @@ export function Header() {
           <a className="masthead-tel" href={site.phone.href}>
             {site.phone.display}
           </a>
-          <button type="button" className="cart-btn" onClick={() => openCart(true)} data-cart-target aria-label={`Panier, ${count} article${count > 1 ? 's' : ''}`}>
-            <BagIcon />
-            <span className="cart-btn-label">Panier</span>
-            {ready && <CartCount count={count} bump={bump} />}
-          </button>
           <Link className="btn btn--primary btn--sm masthead-cta" href="/commander">
-            Commander
+            Commander un gâteau
           </Link>
           <button
             ref={toggle}
@@ -133,12 +117,6 @@ export function Header() {
                 </Link>
               </li>
             ))}
-            <li>
-              <Link href="/commande-personnalisee" aria-current={isCurrent('/commande-personnalisee') ? 'page' : undefined} style={{ ['--i' as string]: nav.length }}>
-                <em>Gâteau sur mesure</em>
-                <Arrow />
-              </Link>
-            </li>
           </ol>
         </nav>
         <div className="menu-foot">

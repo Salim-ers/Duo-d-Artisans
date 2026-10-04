@@ -1,12 +1,10 @@
 import type { Metadata } from 'next';
 import './home.css';
 import { Hero } from '@/components/home/Hero';
-import { Categories, CreationsMosaic, Duo, EventBanner, OrderTeaser, Practical, Reviews } from '@/components/home/Sections';
+import { CakeTeaser, Categories, CreationsMosaic, Duo, Practical, Reviews } from '@/components/home/Sections';
 import { JsonLd } from '@/components/ui/JsonLd';
-import { listCategories } from '@/lib/catalog';
-import { activeEvents, featuredProducts, galleryItems } from '@/lib/content';
 import { websiteSchema } from '@/lib/schema';
-import { shopData } from '@/lib/site-data';
+import { galleryItems, shopData } from '@/lib/site-data';
 
 export const metadata: Metadata = {
   alternates: { canonical: '/' },
@@ -16,16 +14,14 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 export default async function HomePage() {
-  const [shop, categories, gallery, featured, events] = await Promise.all([shopData(), listCategories(), galleryItems(true), featuredProducts(4), activeEvents()]);
-  const event = events[0];
+  const [shop, gallery] = await Promise.all([shopData(), galleryItems(true)]);
   return (
     <>
       <JsonLd data={websiteSchema()} />
       <Hero week={shop.week} exceptions={shop.exceptions} />
-      <Categories categories={categories} />
-      {event && <EventBanner event={event} />}
+      <Categories />
       <CreationsMosaic items={gallery} />
-      <OrderTeaser products={featured} orderingOpen={shop.orderingOpen} />
+      <CakeTeaser />
       <Duo />
       <Reviews reviews={shop.reviews} />
       <Practical week={shop.week} exceptions={shop.exceptions} />

@@ -1,15 +1,7 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import type { CustomStatus, OrderStatus, PaymentStatus } from '@/lib/db/schema';
-import { customStatusLabel, orderStatusLabel, paymentStatusLabel } from '@/lib/labels';
-
-export function StatusBadge({ status }: { status: OrderStatus }) {
-  return <span className={'abadge abadge--' + status}>{orderStatusLabel[status]}</span>;
-}
-
-export function PayBadge({ status }: { status: PaymentStatus }) {
-  return <span className={'abadge abadge--pay-' + status}>{paymentStatusLabel[status]}</span>;
-}
+import type { CustomStatus } from '@/lib/db/schema';
+import { customStatusLabel } from '@/lib/labels';
 
 export function CustomBadge({ status }: { status: CustomStatus }) {
   return <span className={'abadge abadge--c-' + status}>{customStatusLabel[status]}</span>;

@@ -116,7 +116,7 @@ function chime(strong = false) {
   }
 }
 
-export function LivePulse({ initial, sound }: { initial: Last; sound: 'off' | 'all' | 'large' }) {
+export function LivePulse({ initial, sound }: { initial: Last; sound: boolean }) {
   const router = useRouter();
   const last = useRef(initial?.id ?? null);
   const [toasts, setToasts] = useState<NonNullable<Last>[]>([]);
@@ -146,9 +146,7 @@ export function LivePulse({ initial, sound }: { initial: Last; sound: 'off' | 'a
           if (first) return;
           setToasts((t) => [fresh, ...t].slice(0, 3));
           window.setTimeout(() => setToasts((t) => t.filter((x) => x.id !== fresh.id)), 9000);
-          const important = /^(order|custom)\./.test(fresh.type);
-          if (sound === 'all' && important) chime(fresh.type === 'order.large');
-          if (sound === 'large' && fresh.type === 'order.large') chime(true);
+          if (sound && /^(custom|message)\./.test(fresh.type)) chime(fresh.type === 'custom.new');
           if (document.visibilityState !== 'visible' && 'Notification' in window && Notification.permission === 'granted') {
             const n = new Notification(fresh.subject ?? 'Le Duo d’Artisans', { body: fresh.body ?? '', tag: fresh.id, icon: '/icon.svg' });
             n.onclick = () => {
@@ -176,7 +174,7 @@ export function LivePulse({ initial, sound }: { initial: Last; sound: 'off' | 'a
       {toasts.map((t) => (
         <Link key={t.id} href={t.href ?? '/admin'} onClick={() => setToasts((x) => x.filter((y) => y.id !== t.id))}>
           <span>
-            <AIcon name={t.type.startsWith('custom') ? 'cake' : t.type.startsWith('message') ? 'messages' : t.type.startsWith('stock') ? 'stock' : 'orders'} />
+            <AIcon name={t.type.startsWith('message') ? 'messages' : 'cake'} />
           </span>
           <b>{t.subject}</b>
           <small>{t.body}</small>
@@ -240,115 +238,7 @@ export function Submit({ children, className = 'abtn', confirm, name, value, tit
   );
 }
 
-/** Liste déroulante qui enregistre dès qu'on change la valeur (statut rapide). */
-export function AutoSelect({ name, defaultValue, options, label }: { name: string; defaultValue: string; options: { value: string; label: string }[]; label: string }) {
-  return (
-    <select name={name} defaultValue={defaultValue} aria-label={label} onChange={(e) => e.currentTarget.form?.requestSubmit()}>
-      {options.map((o) => (
-        <option key={o.value} value={o.value}>
-          {o.label}
-        </option>
-      ))}
-    </select>
-  );
-}
-
-export function PrintButton({ label = 'Imprimer' }: { label?: string }) {
-  return (
-    <button type="button" className="abtn abtn--ghost" onClick={() => window.print()}>
-      {label}
-    </button>
-  );
-}
-
-/** Champ image : compression dans le navigateur avant l'envoi, aperçu immédiat. */
-export function ImageInput({ name = 'imageFile', current, label = 'Photo' }: { name?: string; current?: string | null; label?: string }) {
-  const [preview, setPreview] = useState<string | null>(current ?? null);
-  return (
-    <div className="afield">
-      <span>{label}</span>
-      {preview && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={preview} alt="" className="apreview" />
-      )}
-      <input
-        type="file"
-        name={name}
-        accept="image/jpeg,image/png,image/webp"
-        onChange={async (e) => {
-          const input = e.currentTarget;
-          const file = input.files?.[0];
-          if (!file) return;
-          const small = await compressImage(file);
-          if (small !== file && typeof DataTransfer !== 'undefined') {
-            const dt = new DataTransfer();
-            dt.items.add(small);
-            input.files = dt.files;
-          }
-          setPreview(URL.createObjectURL(small));
-        }}
-      />
-      <small>JPG, PNG ou WEBP — compressée automatiquement.</small>
-    </div>
-  );
-}
-
-/** Lignes répétables (formats, options) ajoutées côté client. */
-export function RepeatRows({
-  initial,
-  columns,
-  addLabel,
-  rowClass = 'arepeat-row',
-}: {
-  initial: Record<string, string>[];
-  columns: { name: string; placeholder: string; type?: string; options?: { value: string; label: string }[]; width?: string }[];
-  addLabel: string;
-  rowClass?: string;
-}) {
-  const [rows, setRows] = useState(initial.length ? initial : []);
-  return (
-    <div className="arepeat">
-      {rows.map((r, i) => (
-        <div key={(r.id || 'n') + i} className={rowClass}>
-          <input type="hidden" name={`${columns[0]!.name.replace(/[A-Z].*/, '')}Id`} value={r.id ?? ''} />
-          {columns.map((c) =>
-            c.options ? (
-              <select key={c.name} name={c.name} defaultValue={r[c.name] ?? c.options[0]?.value} aria-label={c.placeholder}>
-                {c.options.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <input key={c.name} name={c.name} defaultValue={r[c.name] ?? ''} placeholder={c.placeholder} aria-label={c.placeholder} inputMode={c.type === 'money' || c.type === 'int' ? 'decimal' : undefined} />
-            ),
-          )}
-          <button type="button" className="abtn abtn--ghost abtn--sm" onClick={() => setRows(rows.filter((_, j) => j !== i))} aria-label="Retirer la ligne">
-            ×
-          </button>
-        </div>
-      ))}
-      <button type="button" className="abtn abtn--ghost abtn--sm" style={{ alignSelf: 'flex-start' }} onClick={() => setRows([...rows, {}])}>
-        + {addLabel}
-      </button>
-    </div>
-  );
-}
-
-/** Horloge (mode production). */
-export function Clock() {
-  const [now, setNow] = useState('');
-  useEffect(() => {
-    const f = () => setNow(new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' }).format(new Date()));
-    f();
-    const t = window.setInterval(f, 15_000);
-    return () => window.clearInterval(t);
-  }, []);
-  return <span className="akitchen-clock">{now}</span>;
-}
-
-/** Rafraîchit la page à intervalle régulier quand elle est visible (production, planning). */
+/** Rafraîchit la page à intervalle régulier quand elle est visible (planning). */
 export function AutoRefresh({ seconds = 30 }: { seconds?: number }) {
   const router = useRouter();
   useEffect(() => {

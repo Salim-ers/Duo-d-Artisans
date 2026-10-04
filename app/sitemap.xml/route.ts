@@ -5,8 +5,7 @@ export const dynamic = 'force-static';
 
 const routes: { path: string; priority: number; freq: 'weekly' | 'monthly' }[] = [
   { path: '/', priority: 1, freq: 'weekly' },
-  { path: '/commander', priority: 0.9, freq: 'weekly' },
-  { path: '/commande-personnalisee', priority: 0.9, freq: 'monthly' },
+  { path: '/commander', priority: 0.9, freq: 'monthly' },
   { path: '/creations', priority: 0.8, freq: 'monthly' },
   { path: '/contact', priority: 0.8, freq: 'monthly' },
 ];
