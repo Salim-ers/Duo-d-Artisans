@@ -25,59 +25,21 @@ export const media = {
     width: 1672,
     height: 941,
   },
-  /**
-   * Visuel d'accueil : la vraie devanture, restaurée et agrandie par IA (3200 × 3200).
-   * Au format carré, un même fichier couvre les écrans larges comme les téléphones.
-   */
-  devanture: {
-    src: '/images/accueil/le-duo-artisans-devanture-rantigny.webp',
+  /** La devanture en haute définition (3840 × 2160) : section « La maison » de l'accueil. */
+  facadeHd: {
+    src: '/images/facade/le-duo-artisans-devanture-hd.webp',
     alt: "La devanture bleue du Duo d'Artisans, 7 rue Anatole France à Rantigny",
-    width: 3200,
-    height: 3200,
+    width: 3840,
+    height: 2160,
   },
 
-  /* ---------- Ambiance : ingrédients et gestes, photos libres de droits (jamais présentées comme des produits de la boutique) ---------- */
-  ambBle: {
-    src: '/images/ambiance/le-duo-artisans-ambiance-ble.webp',
-    alt: 'Épis de blé mûrs dans un champ',
-    width: 2400,
-    height: 1600,
-    credit: { author: 'David Roberts', url: 'https://www.pexels.com/photo/close-up-photograph-of-brown-wheat-12873375/' },
-  },
+  /* ---------- Photo libre de droits (geste, jamais présentée comme un produit de la boutique) ---------- */
   ambRouleau: {
     src: '/images/ambiance/le-duo-artisans-ambiance-rouleau-patisserie.webp',
     alt: 'Rouleau à pâtisserie et pâte abaissée sur un plan de travail fariné',
     width: 2400,
     height: 1600,
     credit: { author: 'Klaus Nielsen', url: 'https://www.pexels.com/photo/thin-dough-on-rolling-pin-on-messy-table-6287325/' },
-  },
-  ambFramboises: {
-    src: '/images/ambiance/le-duo-artisans-ambiance-framboises.webp',
-    alt: 'Framboises fraîches sur une planche en bois sombre',
-    width: 2400,
-    height: 1600,
-    credit: { author: 'Lisa Fotios', url: 'https://www.pexels.com/photo/raspberries-on-black-wooden-board-1046350/' },
-  },
-  ambChocolat: {
-    src: '/images/ambiance/le-duo-artisans-ambiance-chocolat.webp',
-    alt: 'Chocolat fondu travaillé au fouet dans un cul-de-poule',
-    width: 1600,
-    height: 2400,
-    credit: { author: 'Nano Erdozain', url: 'https://www.pexels.com/photo/rich-chocolate-batter-being-whipped-in-a-bowl-33775604/' },
-  },
-  ambTomates: {
-    src: '/images/ambiance/le-duo-artisans-ambiance-tomates.webp',
-    alt: 'Tomates anciennes sur une table en bois',
-    width: 1600,
-    height: 2407,
-    credit: { author: 'Dilara', url: 'https://www.pexels.com/photo/fresh-heirloom-tomatoes-on-rustic-wooden-table-29081091/' },
-  },
-  ambCierge: {
-    src: '/images/ambiance/le-duo-artisans-ambiance-cierge-magique.webp',
-    alt: 'Cierge magique allumé, tenu à la main un soir de fête',
-    width: 2400,
-    height: 1800,
-    credit: { author: 'energepic.com', url: 'https://www.pexels.com/photo/person-holding-lighted-firecracker-288478/' },
   },
 
   /* ---------- Photographies de la boutique ---------- */

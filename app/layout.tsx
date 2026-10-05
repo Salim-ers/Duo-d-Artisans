@@ -1,22 +1,33 @@
 import type { Metadata, Viewport } from 'next';
-import { Newsreader, Hanken_Grotesk } from 'next/font/google';
+import { Newsreader, Hanken_Grotesk, Instrument_Serif } from 'next/font/google';
 import './globals.css';
 
 import { site } from '@/data/site';
 import { media } from '@/data/media';
 
-/** Sans l'axe de taille optique : polices deux fois plus légères, chargées avant l'image principale. */
+/** Sans l'axe de taille optique : polices deux fois plus légères. */
 const serif = Newsreader({
   subsets: ['latin'],
   style: ['normal', 'italic'],
   weight: ['400'],
   variable: '--f-serif',
   display: 'swap',
+  // Textes courants seulement : pas de préchargement, l'image principale passe d'abord.
+  preload: false,
 });
 
 const sans = Hanken_Grotesk({
   subsets: ['latin'],
   variable: '--f-sans',
+  display: 'swap',
+});
+
+/** Serif d'affichage : uniquement pour les très grands titres (accueil, marque, pied de page). */
+const display = Instrument_Serif({
+  subsets: ['latin'],
+  style: ['normal', 'italic'],
+  weight: '400',
+  variable: '--f-display',
   display: 'swap',
 });
 
@@ -51,7 +62,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`${serif.variable} ${sans.variable}`}>
+    <html lang="fr" className={`${serif.variable} ${sans.variable} ${display.variable}`}>
       <body>{children}</body>
     </html>
   );

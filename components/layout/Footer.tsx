@@ -1,21 +1,18 @@
 import Link from 'next/link';
-import { site } from '@/data/site';
+import { nav, site } from '@/data/site';
 import { dayLabels, formatIntervals, weekOrder, type Interval } from '@/data/opening-hours';
 
-/** Pied de page minimal : marque, adresse, téléphone, horaires, mentions. */
+/** Pied de page éditorial : le nom en très grand sur bleu nuit, puis l'essentiel pour venir. */
 export function Footer({ week }: { week: Interval[][] }) {
   const socials = Object.entries(site.social).filter((e): e is [string, string] => !!e[1]);
   return (
     <footer className="footer">
       <div className="wrap">
-        <div className="footer-top">
-          <div>
-            <p className="footer-mark">
-              Le Duo <em>d’Artisans</em>
-            </p>
-            <p>Boulangerie · Pâtisserie · Viennoiserie · Snacking</p>
-          </div>
+        <p className="footer-mark" aria-hidden="true">
+          Le Duo <em>d’Artisans</em>
+        </p>
 
+        <div className="footer-top">
           <div>
             <h2 className="footer-h">La boutique</h2>
             <p>
@@ -23,10 +20,10 @@ export function Footer({ week }: { week: Interval[][] }) {
               <br />
               {site.address.postalCode} {site.address.city}
             </p>
-            <p style={{ marginTop: 10 }}>
+            <p className="footer-gap">
               <a href={site.phone.href}>{site.phone.display}</a>
             </p>
-            <p style={{ marginTop: 4 }}>
+            <p>
               <a href={site.maps.directions} target="_blank" rel="noopener noreferrer">
                 Itinéraire ↗
               </a>
@@ -46,22 +43,31 @@ export function Footer({ week }: { week: Interval[][] }) {
           </div>
 
           <div>
-            <h2 className="footer-h">Sur mesure</h2>
-            <p>
-              <Link href="/commander">Commander un gâteau</Link>
-            </p>
-            <p style={{ marginTop: 4 }}>
-              <Link href="/creations">Nos créations</Link>
-            </p>
+            <h2 className="footer-h">Le site</h2>
+            <ul className="footer-links">
+              {nav.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href}>{item.label}</Link>
+                </li>
+              ))}
+            </ul>
             {socials.length > 0 && (
-              <p style={{ marginTop: 16 }}>
+              <p className="footer-gap">
                 {socials.map(([name, url]) => (
-                  <a key={name} href={url} target="_blank" rel="noopener noreferrer" style={{ marginRight: 16, textTransform: 'capitalize' }}>
+                  <a key={name} href={url} target="_blank" rel="noopener noreferrer" className="footer-social">
                     {name}
                   </a>
                 ))}
               </p>
             )}
+          </div>
+
+          <div className="footer-order">
+            <h2 className="footer-h">Sur mesure</h2>
+            <p>Un anniversaire, un événement, une envie particulière ?</p>
+            <Link className="footer-cta" href="/commander">
+              Commander un gâteau →
+            </Link>
           </div>
         </div>
 

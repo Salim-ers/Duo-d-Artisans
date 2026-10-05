@@ -48,16 +48,11 @@ export default function MentionsPage() {
         Les photographies de la boutique et de ses créations appartiennent à {site.legal.name}. Toute reproduction sans
         autorisation est interdite.
       </p>
-      <p>
-        La photographie de la devanture affichée en page d’accueil a été restaurée et agrandie à l’aide d’un outil
-        d’intelligence artificielle ; le haut de la façade et la rue ont été prolongés pour le format carré.
-      </p>
 
-      <h2>Photos d’ambiance</h2>
+      <h2>Photo libre de droits</h2>
       <p>
-        Les photos d’ingrédients et de gestes de la page d’accueil (blé, rouleau à pâtisserie, framboises, chocolat,
-        tomates, cierge magique) sont des photos libres de droits publiées sur Pexels (licence Pexels). Elles illustrent
-        les rayons de la boutique et ne représentent pas ses produits.
+        La photo du rouleau à pâtisserie (étape « Façonner » de la page d’accueil) est une photo libre de droits publiée
+        sur Pexels (licence Pexels). Elle illustre un geste et ne représente pas un produit de la boutique.
       </p>
       <ul className="legal-credits">
         {credits.map((c) => (

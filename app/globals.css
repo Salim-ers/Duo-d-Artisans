@@ -24,12 +24,21 @@
   --caramel: #9a5626;
   --cuivre: #b8763e;
 
+  /* La devanture : bleu nuit, beurre, chocolat (direction de l’accueil, de l’en-tête et du pied de page) */
+  --nuit: #152c3a;
+  --nuit-2: #1d3a4c;
+  --beurre: #e3c9a3;
+  --chocolat: #3a241d;
+  --blanc: #faf8f4;
+  --filet-nuit: rgba(243, 236, 226, 0.16);
+
   /* Rappels */
   --bleu: #1f4e6b;
   --ouvert: #3d7552;
   --alerte: #a33a22;
 
   --f-serif-stack: var(--f-serif), 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --f-display-stack: var(--f-display), var(--f-serif), Georgia, serif;
   --f-sans-stack: var(--f-sans), 'Helvetica Neue', 'Segoe UI', system-ui, sans-serif;
 
   --max: 1440px;
@@ -210,14 +219,15 @@ a:hover > .arrow[style] { transform: rotate(-45deg) translateX(3px); }
 }
 
 /* ==================================================================
-   EN-TÊTE — fixe ; transparent sur le hero de l'accueil, crème ailleurs
+   EN-TÊTE — fixe ; transparent et intégré au hero de l'accueil,
+   voilé (blanc cassé translucide + flou) dès que l'on défile et sur les autres pages
    ================================================================== */
 .masthead {
   position: fixed; inset: 0 0 auto 0; z-index: 60; height: var(--mast);
-  color: var(--encre); background: color-mix(in srgb, var(--creme) 92%, transparent);
-  border-bottom: 1px solid var(--filet);
-  -webkit-backdrop-filter: saturate(1.4) blur(14px); backdrop-filter: saturate(1.4) blur(14px);
-  transition: background-color 0.5s var(--ease), color 0.5s var(--ease), border-color 0.5s var(--ease);
+  color: var(--nuit); background: color-mix(in srgb, var(--blanc) 80%, transparent);
+  border-bottom: 1px solid rgba(21, 44, 58, 0.1);
+  -webkit-backdrop-filter: saturate(1.5) blur(18px); backdrop-filter: saturate(1.5) blur(18px);
+  transition: background-color 0.6s var(--ease), color 0.6s var(--ease), border-color 0.6s var(--ease);
 }
 .masthead[data-over] { background: transparent; color: var(--creme); border-bottom-color: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
 .masthead-row {
@@ -225,12 +235,12 @@ a:hover > .arrow[style] { transform: rotate(-45deg) translateX(3px); }
   height: 100%; max-width: var(--max); margin-inline: auto; padding-inline: var(--gutter);
 }
 .wordmark {
-  display: inline-flex; align-items: baseline; gap: 0.28em;
-  font-family: var(--f-serif-stack); font-size: clamp(1.3rem, 1.1rem + 0.6vw, 1.6rem);
-  letter-spacing: -0.02em; text-decoration: none; white-space: nowrap; line-height: 1;
+  display: inline-flex; align-items: baseline; gap: 0.24em;
+  font-family: var(--f-display-stack); font-size: clamp(1.45rem, 1.2rem + 0.7vw, 1.8rem);
+  letter-spacing: -0.01em; text-decoration: none; white-space: nowrap; line-height: 1;
 }
-.wordmark em { color: var(--caramel); transition: color 0.5s var(--ease); }
-.masthead[data-over] .wordmark em { color: var(--ble); }
+.wordmark em { color: var(--caramel); transition: color 0.6s var(--ease); }
+.masthead[data-over] .wordmark em { color: var(--beurre); }
 .primary-nav { margin-inline: auto; }
 .primary-nav ul { display: flex; gap: clamp(20px, 2.4vw, 40px); }
 .primary-nav a { position: relative; font-size: 0.9rem; font-weight: 500; text-decoration: none; padding-block: 8px; letter-spacing: 0.01em; }
@@ -240,13 +250,19 @@ a:hover > .arrow[style] { transform: rotate(-45deg) translateX(3px); }
 }
 .primary-nav a:hover::after { transform: scaleX(1); transform-origin: left; }
 .primary-nav a[aria-current='page']::after { transform: scaleX(1); background: var(--caramel); height: 2px; }
-.masthead[data-over] .primary-nav a[aria-current='page']::after { background: var(--ble); }
+.masthead[data-over] .primary-nav a[aria-current='page']::after { background: var(--beurre); }
 .masthead-actions { display: flex; align-items: center; gap: 10px; }
 .masthead-tel { font-size: 0.88rem; font-weight: 600; text-decoration: none; font-variant-numeric: tabular-nums; white-space: nowrap; margin-right: 6px; }
 
-.masthead-cta { margin-left: 2px; }
-.masthead[data-over] .masthead-cta { background: var(--creme); border-color: var(--creme); color: var(--encre); }
-.masthead[data-over] .masthead-cta:hover { background: var(--ble-clair); border-color: var(--ble-clair); }
+/* Appel à l’action discret : un simple trait, plein au survol. */
+.masthead-cta {
+  display: inline-flex; align-items: center; min-height: 40px; padding: 0 20px; margin-left: 2px;
+  border: 1px solid color-mix(in srgb, currentColor 45%, transparent); border-radius: 999px;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; text-decoration: none; white-space: nowrap;
+  transition: background-color 0.35s var(--ease), color 0.35s var(--ease), border-color 0.35s var(--ease);
+}
+.masthead-cta:hover { background: var(--nuit); border-color: var(--nuit); color: var(--creme); }
+.masthead[data-over] .masthead-cta:hover { background: var(--creme); border-color: var(--creme); color: var(--nuit); }
 .menu-toggle {
   display: none; align-items: center; justify-content: center; width: 44px; height: 44px; margin-right: -8px;
 }
@@ -255,7 +271,7 @@ a:hover > .arrow[style] { transform: rotate(-45deg) translateX(3px); }
 
 .menu {
   position: fixed; inset: var(--mast) 0 0 0; z-index: 59; overflow-y: auto;
-  background: var(--brun); color: var(--creme);
+  background: var(--nuit); color: var(--creme);
   display: flex; flex-direction: column; justify-content: space-between; gap: 32px;
   padding: clamp(24px, 6vw, 56px) var(--gutter) calc(32px + var(--bar));
   animation: menu-in 0.5s var(--ease-out) both;
@@ -265,11 +281,11 @@ a:hover > .arrow[style] { transform: rotate(-45deg) translateX(3px); }
 .menu li { border-bottom: 1px solid var(--filet-clair); overflow: hidden; }
 .menu li a {
   display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 14px 0; text-decoration: none;
-  font-family: var(--f-serif-stack); font-size: clamp(2.2rem, 1.4rem + 4vw, 3.4rem); line-height: 1.05; letter-spacing: -0.02em;
+  font-family: var(--f-display-stack); font-size: clamp(2.6rem, 1.6rem + 5vw, 4rem); line-height: 1.05; letter-spacing: -0.01em;
   animation: menu-line 0.8s var(--ease-out) both; animation-delay: calc(var(--i) * 60ms + 120ms);
 }
 @keyframes menu-line { from { transform: translate3d(0, 100%, 0); } to { transform: none; } }
-.menu li a[aria-current='page'] { font-style: italic; color: var(--ble); }
+.menu li a[aria-current='page'] { font-style: italic; color: var(--beurre); }
 .menu-foot { display: grid; gap: 16px; }
 .menu-foot p { color: rgba(244, 238, 227, 0.7); font-size: 0.95rem; }
 .menu-foot .btn { justify-self: start; }
@@ -316,27 +332,35 @@ a:hover > .arrow[style] { transform: rotate(-45deg) translateX(3px); }
 }
 
 /* ==================================================================
-   PIED DE PAGE — minimal
+   PIED DE PAGE — bleu nuit, le nom en très grand
    ================================================================== */
-.footer { background: var(--encre); color: var(--creme); padding-block: var(--sp-l) 32px; }
-.footer-top { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 40px clamp(24px, 4vw, 64px); }
-.footer .footer-mark { font-family: var(--f-serif-stack); font-size: clamp(2.2rem, 1.4rem + 2.6vw, 3.6rem); line-height: 0.95; letter-spacing: -0.03em; }
-.footer .footer-mark em { color: var(--ble); }
-.footer .footer-mark + p { margin-top: 16px; color: rgba(244, 238, 227, 0.62); max-width: 30ch; font-size: 0.95rem; }
-.footer-h { font-family: var(--f-sans-stack); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ble); margin-bottom: 14px; }
+.footer { position: relative; background: var(--nuit); color: var(--creme); padding-block: clamp(56px, 8vw, 112px) 28px; overflow: hidden; }
+.footer .footer-mark {
+  font-family: var(--f-display-stack); font-size: clamp(3.4rem, 0.5rem + 15.2vw, 14.6rem); line-height: 0.86; letter-spacing: -0.02em;
+  white-space: nowrap; margin-left: -0.04em; padding-bottom: clamp(36px, 5vw, 72px); border-bottom: 1px solid var(--filet-nuit);
+}
+.footer-mark em { color: var(--beurre); }
+.footer-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 0.8fr) minmax(0, 1.1fr); gap: 40px clamp(24px, 4vw, 64px); padding-top: clamp(36px, 5vw, 64px); }
+.footer-h { font-family: var(--f-sans-stack); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--beurre); margin-bottom: 16px; }
 .footer p, .footer dd { font-size: 0.95rem; }
+.footer-gap { margin-top: 12px; }
 .footer a { text-decoration: none; }
 .footer a:hover { text-decoration: underline; text-underline-offset: 0.3em; }
-.footer-hours div { display: flex; justify-content: space-between; gap: 12px; padding-block: 2px; font-size: 0.9rem; }
-.footer-hours dt { color: rgba(244, 238, 227, 0.62); }
+.footer-hours div { display: flex; justify-content: space-between; gap: 12px; padding-block: 3px; font-size: 0.9rem; }
+.footer-hours dt { color: rgba(243, 236, 226, 0.6); }
 .footer-hours dd { font-variant-numeric: tabular-nums; }
+.footer-links { display: grid; gap: 6px; }
+.footer-links a { font-family: var(--f-display-stack); font-size: 1.5rem; line-height: 1.1; }
+.footer-social { margin-right: 16px; text-transform: capitalize; }
+.footer-order p { color: rgba(243, 236, 226, 0.7); max-width: 26ch; }
+.footer-cta { display: inline-block; margin-top: 14px; font-family: var(--f-display-stack); font-style: italic; font-size: 1.6rem; color: var(--beurre); }
 .footer-legal {
   display: flex; justify-content: space-between; gap: 12px 32px; flex-wrap: wrap;
-  margin-top: var(--sp-m); padding-top: 22px; border-top: 1px solid var(--filet-clair); font-size: 0.8rem; color: rgba(244, 238, 227, 0.55);
+  margin-top: clamp(40px, 6vw, 80px); padding-top: 22px; border-top: 1px solid var(--filet-nuit); font-size: 0.8rem; color: rgba(243, 236, 226, 0.66);
 }
 .footer-legal nav { display: flex; flex-wrap: wrap; gap: 8px 24px; }
 @media (max-width: 1000px) { .footer-top { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 560px) { .footer-top { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .footer-top { grid-template-columns: 1fr; } .footer .footer-mark { white-space: normal; } }
 
 /* ==================================================================
    STATUT D’OUVERTURE & HORAIRES

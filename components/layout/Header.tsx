@@ -16,21 +16,26 @@ export function Header() {
 
   useEffect(() => setOpen(false), [pathname]);
 
-  // Transparent tant que l'on est sur la photo du hero de l'accueil.
+  // Transparente et intégrée au hero de l'accueil ; voilée (flou + légère opacité) dès que l'on défile.
   useEffect(() => {
     if (!home) return;
     let frame = 0;
+    // Transparente seulement tant qu'elle survole la photo du hero (élément marqué data-masthead-over).
     const measure = () => {
       frame = 0;
-      setOver(window.scrollY < window.innerHeight * 0.72);
+      const zone = document.querySelector('[data-masthead-over]');
+      const mast = document.querySelector('.masthead')?.getBoundingClientRect().height ?? 76;
+      setOver(zone ? zone.getBoundingClientRect().bottom > mast + 8 : window.scrollY < window.innerHeight * 0.85);
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(measure);
     };
     measure();
     window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
     return () => {
       window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
       if (frame) cancelAnimationFrame(frame);
     };
   }, [home]);
@@ -89,8 +94,8 @@ export function Header() {
           <a className="masthead-tel" href={site.phone.href}>
             {site.phone.display}
           </a>
-          <Link className="btn btn--primary btn--sm masthead-cta" href="/commander">
-            Commander un gâteau
+          <Link className="masthead-cta" href="/commander">
+            Commander
           </Link>
           <button
             ref={toggle}

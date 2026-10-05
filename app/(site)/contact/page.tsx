@@ -4,7 +4,7 @@ import { media } from '@/data/media';
 import { site } from '@/data/site';
 import { pageMetadata } from '@/lib/seo';
 import { shopData } from '@/lib/site-data';
-import { Practical } from '@/components/home/Sections';
+import { Practical } from '@/components/contact/Practical';
 import { ContactForm } from '@/components/forms/ContactForm';
 import { MapEmbed } from '@/components/contact/MapEmbed';
 

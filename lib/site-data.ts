@@ -43,10 +43,11 @@ export async function galleryItems() {
 }
 
 /**
- * Mosaïque de l'accueil : les photos « mises en avant » d'abord, complétées par les suivantes,
- * sans jamais reprendre une photo déjà affichée ailleurs sur l'accueil (`exclude`).
+ * Galerie de l'accueil : les photos « mises en avant » d'abord, complétées par les suivantes,
+ * sans jamais reprendre une photo déjà affichée ailleurs sur l'accueil (`exclude`)
+ * ni les catégories écartées (`skipCategories`).
  */
-export async function homeGallery(exclude: string[], max = 8) {
-  const pool = (await galleryItems()).filter((g) => !exclude.includes(g.src));
+export async function homeGallery(exclude: string[], max = 8, skipCategories: string[] = []) {
+  const pool = (await galleryItems()).filter((g) => !exclude.includes(g.src) && !skipCategories.includes(g.category));
   return [...pool.filter((g) => g.showOnHome), ...pool.filter((g) => !g.showOnHome)].slice(0, max);
 }
