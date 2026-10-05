@@ -3,9 +3,9 @@
 Boulangerie · Pâtisserie · Viennoiserie · Snacking — 7 rue Anatole France, 60290 Rantigny.
 
 - **Site public** (Accueil, Commander, Créations, Contact) — photographie, typographie, mouvement.
-  L’accueil est une page éditoriale en huit temps : hero (panneau bleu nuit × photo des pains au chocolat, le nom qui
-  franchit la frontière), « Deux savoir-faire, une seule maison », la vitrine, « Du fournil à la vitrine » (scène fixe et
-  étapes), une respiration plein écran, « Les jours qui comptent » (gâteaux sur mesure), la note et trois avis, la maison.
+  L’accueil est une page éditoriale en sept temps : hero (panneau bleu nuit × photo de la vitrine, le nom qui franchit
+  la frontière), « Deux savoir-faire, une seule maison », la vitrine (grille de six photos), une respiration plein écran
+  (« Fait ici, à Rantigny. »), « Les jours qui comptent » (gâteaux sur mesure), la note et trois avis, la maison.
   « Commander » = **commande de gâteau sur mesure**, présentée comme un **bloc-note** : dix questions visibles d’un coup
   (type, date, nombre de personnes, saveurs, thème, texte, budget, remarques, image d’inspiration facultative, coordonnées).
   C’est une **demande** : aucun prix affiché, aucun paiement en ligne. La boutique répond avec un devis que le client
@@ -58,7 +58,7 @@ Rien de fictif n’apparaît sur le site public.
 | Horaires d’ouverture | Gestion → Paramètres |
 | Fermetures et horaires exceptionnels | Gestion → Planning |
 | Photos de la galerie (et de « La vitrine » sur l’accueil) | Gestion → Galerie |
-| Photos fixes de l’accueil (hero, savoir-faire, étapes, plein écran, gâteaux, maison) | `components/home/Hero.tsx`, `components/home/Sections.tsx` |
+| Photos fixes de l’accueil (hero, deux savoir-faire, plein écran, gâteaux, maison) | `components/home/Hero.tsx`, `components/home/Sections.tsx` |
 | Note et nombre d’avis Google | Gestion → Paramètres → Avis |
 | Avis cités sur l’accueil (vrais avis Google, recopiés mot pour mot ; trois sont affichés) | `data/reviews.ts`, `components/home/Sections.tsx` |
 | Nom, téléphone, adresse, mentions légales | `data/site.ts` |
@@ -66,9 +66,8 @@ Rien de fictif n’apparaît sur le site public.
 | Couleurs (bleu nuit, crème, beurre, chocolat), typographie | variables en tête de `app/globals.css` (site) et `app/admin/admin.css` |
 | Mise en page et mouvement de l’accueil | `app/(site)/home.css`, `components/home/motion.tsx` |
 
-Toutes les photos de l’accueil sont celles de la boutique (la devanture en 3840 × 2160 a été fournie par la boutique),
-sauf une : le rouleau à pâtisserie de l’étape « Façonner », photo libre de droits (licence Pexels, crédit dans
-`data/media.ts` et les mentions légales), qui illustre un geste et n’est jamais présentée comme un produit.
+Toutes les photos du site sont celles de la boutique (la devanture en 3840 × 2160 a été fournie par la boutique) :
+aucune photo de stock, aucun produit retouché par IA.
 
 **Règle : jamais deux fois la même photo sur une page.** « La vitrine » de l’accueil écarte d’office toutes les photos
 fixes de la page (`fixedHomePhotos`) et les photos de la boutique ; la devanture n’apparaît pas dans la page Créations.

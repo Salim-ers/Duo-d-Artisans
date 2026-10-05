@@ -15,7 +15,7 @@ import { StarIcon } from '@/components/ui/Icons';
 import { OpenNowLine } from '@/components/ui/OpenNow';
 import { HoursTable } from '@/components/ui/HoursTable';
 import { heroPhoto } from './Hero';
-import { Drift, Pan, Settle, Story } from './motion';
+import { Drift, Pan, Settle } from './motion';
 
 /* ------------------------------------------------------------------
    Photos fixes de l'accueil : chacune n'apparaît qu'une fois.
@@ -23,19 +23,11 @@ import { Drift, Pan, Settle, Story } from './motion';
    ------------------------------------------------------------------ */
 const duoPhotos = { pain: media.baguettesFournil, patisserie: media.entremets };
 
-const steps: { n: string; word: string; text: string; image: Media; position?: string }[] = [
-  { n: '01', word: 'Pétrir', text: 'Tout commence au pétrin : la pâte prend corps.', image: media.petrin },
-  { n: '02', word: 'Façonner', text: 'Chaque pièce prend sa forme.', image: media.ambRouleau, position: '58% 50%' },
-  { n: '03', word: 'Cuire', text: 'Le four donne la croûte, la couleur, le croustillant.', image: media.baguettesTradition, position: '46% 50%' },
-  { n: '04', word: 'Dresser', text: 'Fruits, crèmes, finitions : la pâtisserie se compose.', image: media.gateauFruits },
-  { n: '05', word: 'Partager', text: 'Au comptoir, 7 rue Anatole France.', image: media.boutique, position: '40% 50%' },
-];
-
-const pausePhoto = media.vitrineEclairs;
+const pausePhoto = media.petrin;
 const occasionPhoto = media.numberCake;
 const maisonPhoto = media.facadeHd;
 
-export const fixedHomePhotos = [heroPhoto, duoPhotos.pain, duoPhotos.patisserie, ...steps.map((s) => s.image), pausePhoto, occasionPhoto, maisonPhoto].map((p) => p.src);
+export const fixedHomePhotos = [heroPhoto, duoPhotos.pain, duoPhotos.patisserie, pausePhoto, occasionPhoto, maisonPhoto].map((p) => p.src);
 
 /* ---------- 2. Deux savoir-faire, une seule maison ---------- */
 function Universe({
@@ -116,17 +108,15 @@ export function Duo() {
   );
 }
 
-/* ---------- 3. La vitrine : galerie éditoriale asymétrique ---------- */
-/** Largeur réelle de chaque case (voir home.css) : sur téléphone, les cases 2-3 et 5-6 vont par deux. */
-function vitrineSizes(i: number, n: number) {
-  const half = i === 1 || i === 2 || i === 5 || (i === 4 && n > 5);
-  const mobile = half ? '46vw' : '92vw';
-  const desktop = i === 0 ? '56vw' : i === 3 ? '48vw' : '36vw';
-  return `(max-width: 899px) ${mobile}, ${desktop}`;
-}
+/* ---------- 3. La vitrine : une grille nette, trois par trois ---------- */
 export function Vitrine({ items }: { items: GalleryItem[] }) {
-  if (!items.length) return null;
-  const label = (g: GalleryItem) => g.title ?? galleryCategories.find((c) => c.id === g.category)?.label ?? '';
+  // Toujours des rangées complètes de trois (6 ou 3 photos) : rien ne dépasse, rien ne manque.
+  const shown = items.slice(0, items.length >= 6 ? 6 : items.length >= 3 ? 3 : items.length);
+  if (!shown.length) return null;
+  const category = (g: GalleryItem) => galleryCategories.find((c) => c.id === g.category)?.label ?? '';
+  // « Viennoiseries » / « Viennoiserie » : la catégorie n'est pas répétée sous un nom qui la dit déjà.
+  const base = (t: string) => t.toLowerCase().normalize('NFD').replace(/[^a-z]/g, '').replace(/s$/, '');
+  const same = (title: string | null, cat: string) => !title || base(title) === base(cat);
   return (
     <section className="vt" id="vitrine" aria-labelledby="vt-title">
       <div className="wrap">
@@ -140,13 +130,13 @@ export function Vitrine({ items }: { items: GalleryItem[] }) {
           </div>
         </div>
         <ul className="vt-grid" role="list">
-          {items.map((g, i) => (
-            <li key={g.id} className="vt-item">
+          {shown.map((g, i) => (
+            <li key={g.id} className="vt-item" data-reveal style={{ ['--i' as string]: i % 3 }}>
               <Link href={`/creations?filtre=${g.category}`} className="vt-link">
-                <Photo image={{ src: g.src, alt: g.alt }} sizes={vitrineSizes(i, items.length)} className="vt-photo" index={i % 2} />
+                <Photo image={{ src: g.src, alt: g.alt }} sizes="(max-width: 599px) 92vw, (max-width: 999px) 46vw, 30vw" className="vt-photo" reveal={false} />
                 <span className="vt-cap">
-                  <span className="vt-n">{String(i + 1).padStart(2, '0')}</span>
-                  <span className="vt-name">{label(g)}</span>
+                  <span className="vt-name">{g.title ?? category(g)}</span>
+                  {!same(g.title, category(g)) && <span className="vt-cat">{category(g)}</span>}
                 </span>
               </Link>
             </li>
@@ -157,25 +147,7 @@ export function Vitrine({ items }: { items: GalleryItem[] }) {
   );
 }
 
-/* ---------- 4. Du fournil à la vitrine : récit à scène fixe ---------- */
-export function Savoir() {
-  return (
-    <section className="st" aria-labelledby="st-title">
-      <div className="wrap st-head">
-        <span className="hlabel hlabel--light">Le savoir-faire</span>
-        <Split id="st-title" lines={['Du fournil', { em: 'à la vitrine.' }]} className="d-1" />
-      </div>
-      <Story
-        steps={steps.map(({ n, word, text }) => ({ n, word, text }))}
-        images={steps.map((s) => (
-          <Image key={s.n} src={s.image.src} alt={s.image.alt} fill sizes="(max-width: 899px) 100vw, 50vw" quality={82} style={s.position ? { objectPosition: s.position } : undefined} />
-        ))}
-      />
-    </section>
-  );
-}
-
-/* ---------- 5. Respiration plein écran, puis les commandes qui glissent par-dessus ---------- */
+/* ---------- 4. Respiration plein écran, puis les commandes qui glissent par-dessus ---------- */
 export function Pause() {
   return (
     <section className="ps" aria-labelledby="ps-title">
@@ -224,7 +196,7 @@ export function Occasions() {
   );
 }
 
-/* ---------- 6. Preuve sociale : la note, et trois voix ---------- */
+/* ---------- 5. Preuve sociale : la note, et trois voix ---------- */
 const fr = (n: number) => n.toLocaleString('fr-FR', { maximumFractionDigits: 1 });
 const frMonth = (iso: string) => new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(iso + 'T12:00:00Z'));
 const featured = ['Amandine R.', 'Marie-Laure D.', 'Samantha D.'];
@@ -279,7 +251,7 @@ export function Proof({ reviews }: { reviews: ReviewsSettings }) {
   );
 }
 
-/* ---------- 7. La maison : la devanture, l'adresse, les horaires ---------- */
+/* ---------- 6. La maison : la devanture, l'adresse, les horaires ---------- */
 export function Maison({ week, exceptions }: { week: Interval[][]; exceptions: DayException[] }) {
   const next = exceptions[0];
   const note = next

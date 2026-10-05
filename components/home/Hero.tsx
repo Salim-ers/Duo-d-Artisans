@@ -6,8 +6,8 @@ import type { DayException } from '@/lib/hours';
 import { OpenNowLine } from '@/components/ui/OpenNow';
 import { Arrow } from '@/components/ui/Arrow';
 
-/** Photo du hero : le feuilletage en gros plan. Exportée pour ne jamais la répéter plus bas. */
-export const heroPhoto = media.painsChocolat;
+/** Photo du hero : la vitrine de la boutique. Exportée pour ne jamais la répéter plus bas. */
+export const heroPhoto = media.vitrineEclairs;
 
 /**
  * Hero éditorial : un panneau bleu nuit (la couleur de la devanture), une grande photo qui donne faim,
@@ -20,7 +20,7 @@ export function Hero({ week, exceptions }: { week: Interval[][]; exceptions: Day
       <div className="hx-photo" data-masthead-over>
         <Image src={heroPhoto.src} alt={heroPhoto.alt} fill priority fetchPriority="high" quality={90} sizes="(max-width: 899px) 100vw, 64vw" />
         <p className="hx-caption" aria-hidden="true">
-          Pains au chocolat <span>Le Duo d’Artisans</span>
+          La vitrine <span>Le Duo d’Artisans</span>
         </p>
       </div>
 

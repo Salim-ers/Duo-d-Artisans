@@ -1,5 +1,5 @@
 /**
- * Photographies de la boutique et photos d'ambiance libres de droits, servies depuis /public.
+ * Photographies de la boutique, servies depuis /public.
  * Règle : une même photo n'apparaît jamais deux fois sur une page.
  *
  * `width` / `height` sont les dimensions RÉELLES du fichier : le script
@@ -9,14 +9,7 @@
  * Pour remplacer une photo : déposer le fichier dans /public/images/…,
  * puis mettre à jour src, width et height ici.
  */
-export type Media = {
-  src: string;
-  alt: string;
-  width: number;
-  height: number;
-  /** Photo libre de droits (licence Pexels) : auteur et page d'origine, repris dans les mentions légales. */
-  credit?: { author: string; url: string };
-};
+export type Media = { src: string; alt: string; width: number; height: number };
 
 export const media = {
   facade: {
@@ -31,15 +24,6 @@ export const media = {
     alt: "La devanture bleue du Duo d'Artisans, 7 rue Anatole France à Rantigny",
     width: 3840,
     height: 2160,
-  },
-
-  /* ---------- Photo libre de droits (geste, jamais présentée comme un produit de la boutique) ---------- */
-  ambRouleau: {
-    src: '/images/ambiance/le-duo-artisans-ambiance-rouleau-patisserie.webp',
-    alt: 'Rouleau à pâtisserie et pâte abaissée sur un plan de travail fariné',
-    width: 2400,
-    height: 1600,
-    credit: { author: 'Klaus Nielsen', url: 'https://www.pexels.com/photo/thin-dough-on-rolling-pin-on-messy-table-6287325/' },
   },
 
   /* ---------- Photographies de la boutique ---------- */

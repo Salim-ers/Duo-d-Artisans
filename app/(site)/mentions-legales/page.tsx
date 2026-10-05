@@ -1,9 +1,5 @@
-import { media, type Media } from '@/data/media';
 import { site, fullAddress } from '@/data/site';
 import { pageMetadata } from '@/lib/seo';
-
-/** Crédits des photos libres de droits, lus directement dans data/media.ts. */
-const credits = Object.values(media as Record<string, Media>).flatMap((m) => (m.credit ? [{ alt: m.alt, ...m.credit }] : []));
 
 export const metadata = pageMetadata({
   title: 'Mentions légales',
@@ -48,22 +44,6 @@ export default function MentionsPage() {
         Les photographies de la boutique et de ses créations appartiennent à {site.legal.name}. Toute reproduction sans
         autorisation est interdite.
       </p>
-
-      <h2>Photo libre de droits</h2>
-      <p>
-        La photo du rouleau à pâtisserie (étape « Façonner » de la page d’accueil) est une photo libre de droits publiée
-        sur Pexels (licence Pexels). Elle illustre un geste et ne représente pas un produit de la boutique.
-      </p>
-      <ul className="legal-credits">
-        {credits.map((c) => (
-          <li key={c.url}>
-            {c.alt} —{' '}
-            <a className="lnk" href={c.url} target="_blank" rel="noopener noreferrer">
-              {c.author}
-            </a>
-          </li>
-        ))}
-      </ul>
     </article>
   );
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './home.css';
 import { Hero } from '@/components/home/Hero';
-import { Duo, Maison, Occasions, Pause, Proof, Savoir, Vitrine, fixedHomePhotos } from '@/components/home/Sections';
+import { Duo, Maison, Occasions, Pause, Proof, Vitrine, fixedHomePhotos } from '@/components/home/Sections';
 import { MotionRoot } from '@/components/home/motion';
 import { JsonLd } from '@/components/ui/JsonLd';
 import { websiteSchema } from '@/lib/schema';
@@ -16,7 +16,7 @@ export const revalidate = 300;
 
 /**
  * Accueil — une idée forte par section :
- * hero gourmand → deux savoir-faire → la vitrine → du fournil à la vitrine → respiration plein écran
+ * hero gourmand → deux savoir-faire → la vitrine → respiration plein écran
  * → les jours qui comptent → la preuve → la maison.
  */
 export default async function HomePage() {
@@ -28,7 +28,6 @@ export default async function HomePage() {
       <Hero week={shop.week} exceptions={shop.exceptions} />
       <Duo />
       <Vitrine items={gallery} />
-      <Savoir />
       <div className="ps-wrap">
         <Pause />
         <Occasions />

@@ -30,7 +30,7 @@
 }
 .hx-photo { grid-column: 2; grid-row: 1; position: relative; overflow: hidden; background: var(--nuit-2); animation: hx-open 1.2s var(--ease-in-out) both; }
 @keyframes hx-open { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0 0 0 0); } }
-.hx-photo img { object-fit: cover; object-position: 50% 58%; animation: hx-zoom 11s var(--ease-out) 0.3s both; }
+.hx-photo img { object-fit: cover; object-position: 38% 50%; animation: hx-zoom 11s var(--ease-out) 0.3s both; }
 @keyframes hx-zoom { from { transform: scale(1); } to { transform: scale(1.04); } }
 .hx-photo::after {
   content: ''; position: absolute; inset: 0; pointer-events: none;
@@ -146,100 +146,52 @@
 }
 
 /* ==================================================================
-   3. LA VITRINE — galerie éditoriale asymétrique, les photos d’abord
+   3. LA VITRINE — une grille nette : trois colonnes, même format, légendes alignées
    ================================================================== */
 .vt { background: var(--creme); padding-block: var(--sp-xl); }
-.vt-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); align-items: end; gap: 24px clamp(32px, 6vw, 96px); margin-bottom: clamp(48px, 7vw, 112px); color: var(--nuit); }
+.vt-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); align-items: end; gap: 24px clamp(32px, 6vw, 96px); margin-bottom: clamp(40px, 5vw, 72px); color: var(--nuit); }
 .vt-aside { display: grid; gap: 18px; justify-items: start; padding-bottom: 0.6em; }
 .vt-aside p { font-family: var(--f-serif-stack); font-size: clamp(1.08rem, 1rem + 0.3vw, 1.25rem); line-height: 1.45; color: var(--encre-2); }
 .vt-all {
   display: inline-flex; align-items: center; gap: 0.7em; padding-bottom: 6px; border-bottom: 1px solid currentColor;
   font-size: 0.76rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none; color: var(--nuit);
 }
-.vt-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(14px, 2vw, 28px); row-gap: clamp(40px, 6vw, 96px); align-items: start; }
+.vt-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(36px, 4vw, 56px) clamp(14px, 1.6vw, 24px); }
 .vt-item { min-width: 0; }
-.vt-item:nth-child(1) { grid-column: 1 / span 7; }
-.vt-item:nth-child(1) .vt-photo { aspect-ratio: 5 / 4; }
-.vt-item:nth-child(2) { grid-column: 9 / span 4; margin-top: clamp(64px, 12vw, 200px); }
-.vt-item:nth-child(2) .vt-photo { aspect-ratio: 3 / 4; }
-.vt-item:nth-child(3) { grid-column: 2 / span 4; margin-top: calc(-1 * clamp(0px, 7vw, 120px)); }
-.vt-item:nth-child(3) .vt-photo { aspect-ratio: 1; }
-.vt-item:nth-child(4) { grid-column: 7 / span 6; }
-.vt-item:nth-child(4) .vt-photo { aspect-ratio: 16 / 11; }
-.vt-item:nth-child(5) { grid-column: 4 / span 6; }
-.vt-item:nth-child(5) .vt-photo { aspect-ratio: 3 / 2; }
-.vt-item:nth-child(5):not(:last-child) { grid-column: 1 / span 5; }
-.vt-item:nth-child(5):not(:last-child) .vt-photo { aspect-ratio: 4 / 5; }
-.vt-item:nth-child(6) { grid-column: 7 / span 5; margin-top: clamp(48px, 9vw, 160px); }
-.vt-item:nth-child(6) .vt-photo { aspect-ratio: 4 / 3; }
-.vt-link { display: grid; gap: 14px; text-decoration: none; color: var(--nuit); }
-.vt-photo { width: 100%; }
-.vt-photo img { transition: transform 1.6s var(--ease-out), clip-path 1.3s var(--ease-in-out); }
-.vt-cap { display: flex; align-items: center; gap: 12px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; }
-.vt-n { color: var(--caramel); }
-/* Un trait relie le numéro au nom ; il s’étire au survol, la photo zoome à peine. */
-.vt-n::after { content: ''; display: inline-block; width: 18px; height: 1px; margin-left: 12px; vertical-align: middle; background: currentColor; transition: width 0.6s var(--ease-out); }
-.vt-name { color: var(--encre-2); transition: color 0.4s var(--ease); }
-.vt-link:is(:hover, :focus-visible) .vt-n::after { width: 44px; }
-.vt-link:is(:hover, :focus-visible) .vt-name { color: var(--nuit); }
-@media (hover: hover) {
-  .vt-link:is(:hover, :focus-visible) .vt-photo img { transform: scale(1.03); }
-}
-@media (max-width: 899px) {
+.vt-link { display: grid; gap: 16px; text-decoration: none; color: var(--nuit); }
+.vt-photo { aspect-ratio: 4 / 5; border-radius: 2px; }
+.vt-photo img { transition: transform 1.4s var(--ease-out); }
+.vt-cap { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-top: 14px; border-top: 1px solid var(--filet); }
+.vt-name { font-family: var(--f-display-stack); font-size: clamp(1.45rem, 1.2rem + 0.7vw, 1.9rem); line-height: 1.05; }
+.vt-cat { flex: none; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--caramel); }
+.vt-link:is(:hover, :focus-visible) .vt-photo img { transform: scale(1.03); }
+.vt-link:is(:hover, :focus-visible) .vt-name { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
+@media (max-width: 999px) {
   .vt-head { grid-template-columns: 1fr; }
-  .vt-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); row-gap: 36px; }
-  .vt-item:nth-child(n) { grid-column: 1 / -1; margin-top: 0; }
-  .vt-item:nth-child(2), .vt-item:nth-child(3) { grid-column: span 3; }
-  .vt-item:nth-child(2) { margin-top: 48px; }
-  .vt-item:nth-child(2) .vt-photo, .vt-item:nth-child(3) .vt-photo { aspect-ratio: 3 / 4; }
-  .vt-item:nth-child(5):not(:last-child), .vt-item:nth-child(6) { grid-column: span 3; }
+  .vt-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 599px) {
+  .vt-grid { grid-template-columns: 1fr; gap: 32px; }
+  .vt-photo { aspect-ratio: 5 / 4; }
 }
 
 /* ==================================================================
-   4. DU FOURNIL À LA VITRINE — scène fixe, étapes qui défilent
-   ================================================================== */
-.st { background: var(--nuit); color: var(--creme); }
-.st-head { display: grid; gap: 22px; padding-block: var(--sp-xl) var(--sp-l); }
-.st-head .d-1 em { color: var(--beurre); }
-.story-track { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-.story-stage { position: sticky; top: 0; height: 100svh; overflow: hidden; background: var(--nuit-2); }
-.story-layer { position: absolute; inset: 0; overflow: hidden; }
-.story-layer-img { position: absolute; inset: 0; will-change: transform; }
-.story-layer-img img { object-fit: cover; }
-.story-layer:not(:first-child) { clip-path: inset(100% 0 0 0); }
-.story-meter { position: absolute; top: 0; bottom: 0; right: 0; z-index: 10; width: 3px; background: rgba(243, 236, 226, 0.14); }
-.story-meter span { display: block; height: 100%; background: var(--beurre); transform-origin: top; }
-.story-steps { padding-bottom: 12svh; }
-.story-step {
-  min-height: 88svh; display: flex; flex-direction: column; justify-content: center; gap: 14px;
-  padding: 0 var(--gutter) 0 clamp(36px, 7vw, 128px);
-}
-.story-n { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.24em; color: var(--beurre); }
-.story-word { margin: 0; font-family: var(--f-display-stack); font-weight: 400; font-size: clamp(3.8rem, 1.6rem + 6.4vw, 8.4rem); line-height: 0.9; letter-spacing: -0.01em; }
-.story-text { font-family: var(--f-serif-stack); font-size: clamp(1.12rem, 1rem + 0.5vw, 1.45rem); line-height: 1.4; color: rgba(243, 236, 226, 0.94); max-width: 30ch; }
-@media (max-width: 899px) {
-  .story-track { display: block; }
-  .story-stage { top: var(--mast); height: 44svh; z-index: 1; }
-  .story-steps { position: relative; z-index: 0; padding-bottom: 8svh; }
-  .story-step { min-height: 50svh; justify-content: flex-start; padding: 4svh var(--gutter) 0; }
-}
-
-/* ==================================================================
-   5. RESPIRATION PLEIN ÉCRAN — puis les commandes glissent par-dessus
+   4. RESPIRATION PLEIN ÉCRAN — puis les commandes glissent par-dessus
    ================================================================== */
 .ps-wrap { position: relative; }
 .ps { position: sticky; top: 0; height: 100svh; min-height: 560px; overflow: hidden; color: var(--creme); background: var(--nuit); }
 .ps-media { position: absolute; inset: 0; }
 .ps-media img { object-fit: cover; }
-.ps::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(15deg, rgba(21, 44, 58, 0.72) 0%, rgba(21, 44, 58, 0.15) 45%, rgba(21, 44, 58, 0) 70%); }
-.ps-title { position: absolute; left: var(--gutter); bottom: clamp(48px, 10vh, 120px); z-index: 1; margin: 0; color: var(--creme); }
-.ps-title em { color: var(--beurre); }
+/* Photo claire (la pâte au pétrin) : titre à l’encre bleu nuit, sur un voile crème très léger. */
+.ps::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(15deg, rgba(250, 248, 244, 0.82) 0%, rgba(250, 248, 244, 0.35) 38%, rgba(250, 248, 244, 0) 62%); }
+.ps-title { position: absolute; left: var(--gutter); bottom: clamp(48px, 10vh, 120px); z-index: 1; margin: 0; color: var(--nuit); }
+.ps-title em { color: var(--caramel); }
 @media (max-width: 899px) {
   .ps { position: relative; height: auto; min-height: 0; aspect-ratio: 4 / 5; }
 }
 
 /* ==================================================================
-   6. LES JOURS QUI COMPTENT — gâteaux sur mesure, sur chocolat
+   5. LES JOURS QUI COMPTENT — gâteaux sur mesure, sur chocolat
    ================================================================== */
 .oc { position: relative; z-index: 1; background: var(--chocolat); color: var(--creme); padding-block: var(--sp-xl); }
 .oc-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(12px, 2vw, 28px); align-items: center; }
@@ -270,7 +222,7 @@
 }
 
 /* ==================================================================
-   7. LA PREUVE — la note, et trois voix
+   6. LA PREUVE — la note, et trois voix
    ================================================================== */
 .pf { background: var(--blanc); padding-block: var(--sp-xl); color: var(--nuit); }
 .pf-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 48px clamp(40px, 7vw, 128px); align-items: start; }
@@ -302,7 +254,7 @@
 }
 
 /* ==================================================================
-   8. LA MAISON — la devanture en grand, l’essentiel pour venir
+   7. LA MAISON — la devanture en grand, l’essentiel pour venir
    ================================================================== */
 .ms { position: relative; background: var(--creme); padding-bottom: var(--sp-xl); }
 .ms-photo { position: relative; height: clamp(440px, 88vh, 940px); overflow: hidden; background: var(--nuit-2); }
