@@ -8,15 +8,15 @@ import { galleryDelete, galleryMove, galleryUpdate, galleryUpload } from '../../
 
 export const metadata = { title: 'Galerie' };
 
-/** La galerie publique (/creations) et la mosaïque de l'accueil ne dépendent plus d'un développeur. */
+/** La galerie publique (/creations) ne dépend plus d'un développeur. L'accueil est une page éditoriale aux photos fixes. */
 export default async function GalleryPage() {
   await requirePage('ADMIN');
   const db = await getDb();
   const items = await db.select().from(s.gallery).orderBy(asc(s.gallery.position), asc(s.gallery.createdAt));
-  const onHome = items.filter((i) => i.active && i.showOnHome).length;
+  const visible = items.filter((i) => i.active).length;
   return (
     <>
-      <PageTitle title="Galerie" sub={`${items.length} photo(s) · ${onHome} sur l’accueil (6 à 8 recommandées, dans l’ordre ci-dessous)`} />
+      <PageTitle title="Galerie" sub={`${items.length} photo(s) · ${visible} visible(s) sur la page Créations, dans l’ordre ci-dessous`} />
       <Card title="Ajouter des photos">
         <form action={galleryUpload} className="aform aform--grid">
           <F label="Photos (8 maximum)" full>
@@ -37,9 +37,6 @@ export default async function GalleryPage() {
               ))}
             </select>
           </F>
-          <label className="acheck">
-            <input type="checkbox" name="showOnHome" /> Afficher sur l’accueil
-          </label>
           <Submit>Ajouter</Submit>
         </form>
       </Card>
@@ -51,7 +48,7 @@ export default async function GalleryPage() {
             <div className="amedia-img">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={g.src} alt={g.alt} loading="lazy" />
-              {g.showOnHome && g.active && <span className="atag">Accueil · {i + 1}</span>}
+              {g.active && <span className="atag">{i + 1}</span>}
             </div>
             <div className="amedia-row">
               <form action={galleryMove}>
@@ -81,9 +78,6 @@ export default async function GalleryPage() {
                   </option>
                 ))}
               </select>
-              <label className="acheck">
-                <input type="checkbox" name="showOnHome" defaultChecked={g.showOnHome} /> Accueil
-              </label>
               <label className="acheck">
                 <input type="checkbox" name="active" defaultChecked={g.active} /> Visible
               </label>

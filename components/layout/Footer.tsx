@@ -1,6 +1,14 @@
 import Link from 'next/link';
-import { nav, site } from '@/data/site';
+import { site } from '@/data/site';
 import { dayLabels, formatIntervals, weekOrder, type Interval } from '@/data/opening-hours';
+
+const links = [
+  { label: 'Boulangerie', href: '/creations?filtre=pain' },
+  { label: 'Pâtisserie', href: '/creations?filtre=patisserie' },
+  { label: 'Gâteaux', href: '/commander' },
+  { label: 'Contact', href: '/contact' },
+  { label: 'Horaires', href: '/contact#infos' },
+];
 
 /** Pied de page éditorial : le nom en très grand sur bleu nuit, puis l'essentiel pour venir. */
 export function Footer({ week }: { week: Interval[][] }) {
@@ -43,10 +51,10 @@ export function Footer({ week }: { week: Interval[][] }) {
           </div>
 
           <div>
-            <h2 className="footer-h">Le site</h2>
+            <h2 className="footer-h">La maison</h2>
             <ul className="footer-links">
-              {nav.map((item) => (
-                <li key={item.href}>
+              {links.map((item) => (
+                <li key={item.label}>
                   <Link href={item.href}>{item.label}</Link>
                 </li>
               ))}

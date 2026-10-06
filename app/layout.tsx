@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Newsreader, Hanken_Grotesk, Instrument_Serif } from 'next/font/google';
+import { Newsreader, Manrope, Instrument_Serif } from 'next/font/google';
 import './globals.css';
 
 import { site } from '@/data/site';
@@ -16,7 +16,8 @@ const serif = Newsreader({
   preload: false,
 });
 
-const sans = Hanken_Grotesk({
+/** Textes et interface : sans-serif contemporaine. */
+const sans = Manrope({
   subsets: ['latin'],
   variable: '--f-sans',
   display: 'swap',
@@ -56,7 +57,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#F4EEE3',
+  themeColor: '#176A9A',
   viewportFit: 'cover',
 };
 

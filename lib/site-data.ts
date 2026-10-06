@@ -1,5 +1,5 @@
 import 'server-only';
-/** Données publiques partagées par les pages du site : horaires, exceptions, avis, galerie. */
+/** Données publiques partagées par les pages du site : horaires, exceptions, avis, galerie (page Créations). */
 import { cache } from 'react';
 import { and, asc, eq, gte, lte } from 'drizzle-orm';
 import { media } from '@/data/media';
@@ -25,10 +25,7 @@ export const shopData = cache(async () => {
   return { week: hours.week, exceptions, reviews };
 });
 
-/**
- * La photo de la devanture n'apparaît pas dans les galeries publiques :
- * sa version haute définition est déjà l'image d'accueil (pas de doublon).
- */
+/** La devanture n'est pas une création : elle n'apparaît pas dans la galerie (elle a sa section sur l'accueil). */
 const notInGalleries = new Set([media.facade.src]);
 
 /** Galerie publique (page Créations), dans l'ordre choisi dans la gestion. */
@@ -40,14 +37,4 @@ export async function galleryItems() {
     .where(eq(s.gallery.active, true))
     .orderBy(asc(s.gallery.position), asc(s.gallery.createdAt));
   return rows.filter((g) => !notInGalleries.has(g.src));
-}
-
-/**
- * Galerie de l'accueil : les photos « mises en avant » d'abord, complétées par les suivantes,
- * sans jamais reprendre une photo déjà affichée ailleurs sur l'accueil (`exclude`)
- * ni les catégories écartées (`skipCategories`).
- */
-export async function homeGallery(exclude: string[], max = 8, skipCategories: string[] = []) {
-  const pool = (await galleryItems()).filter((g) => !exclude.includes(g.src) && !skipCategories.includes(g.category));
-  return [...pool.filter((g) => g.showOnHome), ...pool.filter((g) => !g.showOnHome)].slice(0, max);
 }

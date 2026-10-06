@@ -3,20 +3,16 @@
 Boulangerie · Pâtisserie · Viennoiserie · Snacking — 7 rue Anatole France, 60290 Rantigny.
 
 - **Site public** (Accueil, Commander, Créations, Contact) — photographie, typographie, mouvement.
-  L’accueil est une page éditoriale en sept temps : hero (panneau bleu nuit × photo de la vitrine, le nom qui franchit
-  la frontière), « Deux savoir-faire, une seule maison », la vitrine (grille de six photos), une respiration plein écran
-  (« Fait ici, à Rantigny. »), « Les jours qui comptent » (gâteaux sur mesure), la note et trois avis, la maison.
-  « Commander » = **commande de gâteau sur mesure**, présentée comme un **bloc-note** : dix questions visibles d’un coup
-  (type, date, nombre de personnes, saveurs, thème, texte, budget, remarques, image d’inspiration facultative, coordonnées).
-  C’est une **demande** : aucun prix affiché, aucun paiement en ligne. La boutique répond avec un devis que le client
-  accepte depuis son lien de suivi.
+  L’accueil est une page éditoriale en neuf temps : la devanture (bandeau bleu, le nom en très grand, puis la vitrine),
+  le duo boulangerie × pâtisserie, la vitrine, les créations, le fournil, les gâteaux sur mesure, le salé, les avis,
+  la boutique. Toutes les photos s’y affichent **entières, à leur ratio d’origine** (jamais recadrées ni zoomées).
 - **Gestion `/admin`** — volontairement simple : tableau de bord, commandes de gâteaux (devis, statuts),
   planning (gâteaux de la semaine, fermetures et horaires exceptionnels), clients (RGPD), messages, galerie,
   paramètres (horaires, types de gâteaux, avis Google, notifications, équipe).
 
 Stack : Next.js 15 (App Router) · React 19 · TypeScript strict · CSS natif · Framer Motion (`motion`, effets liés au
 défilement de l’accueil uniquement) · PostgreSQL (Neon) via Drizzle ORM · PGlite en local · Resend · Zod · jose / bcrypt ·
-web-push. Typographies : Instrument Serif (très grands titres), Newsreader (textes), Hanken Grotesk.
+web-push. Typographies : Instrument Serif (très grands titres), Newsreader (citations), Manrope (textes).
 
 ## Démarrer en local (aucun compte externe)
 
@@ -57,8 +53,8 @@ Rien de fictif n’apparaît sur le site public.
 | Types de gâteaux proposés, délai minimum | Gestion → Paramètres |
 | Horaires d’ouverture | Gestion → Paramètres |
 | Fermetures et horaires exceptionnels | Gestion → Planning |
-| Photos de la galerie (et de « La vitrine » sur l’accueil) | Gestion → Galerie |
-| Photos fixes de l’accueil (hero, deux savoir-faire, plein écran, gâteaux, maison) | `components/home/Hero.tsx`, `components/home/Sections.tsx` |
+| Photos de la galerie (page Créations) | Gestion → Galerie |
+| Photos de l’accueil (toutes fixes) | `components/home/Hero.tsx`, `components/home/Sections.tsx` |
 | Note et nombre d’avis Google | Gestion → Paramètres → Avis |
 | Avis cités sur l’accueil (vrais avis Google, recopiés mot pour mot ; trois sont affichés) | `data/reviews.ts`, `components/home/Sections.tsx` |
 | Nom, téléphone, adresse, mentions légales | `data/site.ts` |
@@ -66,11 +62,14 @@ Rien de fictif n’apparaît sur le site public.
 | Couleurs (bleu nuit, crème, beurre, chocolat), typographie | variables en tête de `app/globals.css` (site) et `app/admin/admin.css` |
 | Mise en page et mouvement de l’accueil | `app/(site)/home.css`, `components/home/motion.tsx` |
 
-Toutes les photos du site sont celles de la boutique (la devanture en 3840 × 2160 a été fournie par la boutique) :
-aucune photo de stock, aucun produit retouché par IA.
+Toutes les photos du site sont celles de la boutique, en versions 4K fournies par la boutique : aucune photo de stock,
+aucun produit retouché par IA. Les photos 16:9 sont les fichiers 3840 × 2160 livrés ; pour les photos carrées, la photo
+entière (2160 × 2160) a été extraite des fichiers livrés, où elle était posée sur un fond flouté. Deux fichiers livrés
+sont gardés tels quels (`public/images/grand-format/`) pour les emplacements pleine largeur. `components/ui/Shot.tsx`
+affiche une photo entière (largeur 100 %, hauteur automatique) ; sur téléphone, les vitrines panoramiques se
+parcourent au doigt (`components/home/Strip.tsx`) plutôt que d’être recadrées.
 
-**Règle : jamais deux fois la même photo sur une page.** « La vitrine » de l’accueil écarte d’office toutes les photos
-fixes de la page (`fixedHomePhotos`) et les photos de la boutique ; la devanture n’apparaît pas dans la page Créations.
+**Règle : jamais deux fois la même photo sur une page.** La devanture n’apparaît pas dans la page Créations.
 
 ## Structure
 

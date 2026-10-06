@@ -53,7 +53,7 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [360, 480, 640, 828, 1080, 1280, 1440, 1672, 1920, 2560, 3840],
     imageSizes: [96, 160, 256, 384],
-    qualities: [70, 75, 82, 90],
+    qualities: [70, 75, 82, 90, 95],
     minimumCacheTTL: 2678400,
   },
   async headers() {

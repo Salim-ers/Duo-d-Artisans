@@ -1,177 +1,233 @@
 import Link from 'next/link';
-import Image from 'next/image';
-import type { GalleryItem } from '@/lib/db/schema';
 import type { Interval } from '@/data/opening-hours';
 import type { DayException } from '@/lib/hours';
 import type { ReviewsSettings } from '@/lib/settings-shared';
 import { media, type Media } from '@/data/media';
 import { reviewQuotes } from '@/data/reviews';
 import { reviewsUrl, site } from '@/data/site';
-import { galleryCategories } from '@/lib/labels';
-import { Photo } from '@/components/ui/Photo';
 import { Split } from '@/components/ui/Split';
 import { Arrow } from '@/components/ui/Arrow';
 import { StarIcon } from '@/components/ui/Icons';
 import { OpenNowLine } from '@/components/ui/OpenNow';
 import { HoursTable } from '@/components/ui/HoursTable';
-import { heroPhoto } from './Hero';
-import { Drift, Pan, Settle } from './motion';
+import { ArtShot, Shot } from '@/components/ui/Shot';
+import { Drift } from './motion';
+import { Strip } from './Strip';
 
-/* ------------------------------------------------------------------
-   Photos fixes de l'accueil : chacune n'apparaît qu'une fois.
-   La « vitrine » (galerie administrable) écarte automatiquement toutes celles-ci.
-   ------------------------------------------------------------------ */
-const duoPhotos = { pain: media.baguettesFournil, patisserie: media.entremets };
+/*
+ * Toutes les photos de l'accueil sont fixes et n'apparaissent qu'une fois.
+ * Chacune s'affiche ENTIÈRE, à son ratio d'origine : jamais recadrée, jamais zoomée.
+ *   hero ............ façade                     vitrine ......... vitrine (pâtisseries) + vitrine (éclairs)
+ *   duo ............. baguettes, gâteau fruits    produits ........ pains au chocolat, macarons, flans,
+ *   fournil ......... pétrin                                        entremets, cookies, baguettes du fournil
+ *   sur mesure ...... number cake                 salé ............ sandwichs, salades
+ *   boutique ........ intérieur de la boutique
+ */
 
-const pausePhoto = media.petrin;
-const occasionPhoto = media.numberCake;
-const maisonPhoto = media.facadeHd;
-
-export const fixedHomePhotos = [heroPhoto, duoPhotos.pain, duoPhotos.patisserie, pausePhoto, occasionPhoto, maisonPhoto].map((p) => p.src);
+/** Légende sobre : nom en serif, précision en petites capitales. */
+function Cap({ name, detail }: { name: string; detail: string }) {
+  return (
+    <>
+      <span className="cap-name">{name}</span>
+      <span className="cap-detail">{detail}</span>
+    </>
+  );
+}
 
 /* ---------- 2. Deux savoir-faire, une seule maison ---------- */
-function Universe({
-  n,
-  name,
-  image,
-  title,
-  items,
-  href,
-  cta,
-  sizes,
-}: {
-  n: string;
-  name: string;
-  image: Media;
-  title: [string, string];
-  items: string[];
-  href: string;
-  cta: string;
-  sizes: string;
-}) {
+function Universe({ n, name, title, items, href, cta }: { n: string; name: string; title: [string, string]; items: string[]; href: string; cta: string }) {
   return (
-    <article className="uni">
+    <div className="uni-text">
       <p className="uni-label">
         <span>{n}</span>
         {name}
       </p>
-      <Photo image={image} sizes={sizes} className="uni-photo" />
-      <h3 className="uni-title">
+      <h3 className="uni-title" data-reveal>
         {title[0]}
         <br />
         <em>{title[1]}</em>
       </h3>
-      <p className="uni-items">{items.join(' · ')}</p>
-      <Link className="uni-link" href={href}>
+      <p className="uni-items" data-reveal>
+        {items.join(' · ')}
+      </p>
+      <Link className="ulink" href={href}>
         {cta} <Arrow />
       </Link>
-    </article>
+    </div>
   );
 }
 
 export function Duo() {
   return (
-    <section className="duo" aria-labelledby="duo-title">
+    <section className="duo" id="maison" aria-labelledby="duo-title">
       <div className="wrap">
-        <Split id="duo-title" lines={['Deux savoir-faire.', { em: 'Une seule maison.' }]} className="d-2 duo-title" />
-        <div className="duo-grid">
-          <Drift className="duo-side duo-side--a" from={60} to={-90}>
+        <header className="duo-head">
+          <span className="hlabel">Le Duo</span>
+          <Split id="duo-title" lines={['Deux savoir-faire.', { em: 'Une seule maison.' }]} className="d-1" />
+        </header>
+
+        <article className="duo-row duo-row--a">
+          <Shot image={media.baguettesTradition} sizes="(max-width: 899px) 92vw, 60vw" className="duo-shot" />
+          <Drift className="duo-side" from={40} to={-40}>
             <Universe
               n="01"
               name="Boulangerie"
-              image={duoPhotos.pain}
               title={['Le quotidien,', 'croustillant.']}
-              items={['Pain', 'Viennoiseries', 'Fournées']}
+              items={['Pain', 'Baguettes', 'Viennoiseries', 'Fournées']}
               href="/creations?filtre=pain"
               cta="Découvrir la boulangerie"
-              sizes="(max-width: 899px) 92vw, 40vw"
             />
           </Drift>
-          <p className="duo-x" aria-hidden="true">
-            ×
-          </p>
-          <Drift className="duo-side duo-side--b" from={-40} to={120}>
+        </article>
+
+        <p className="duo-x" aria-hidden="true">
+          ×
+        </p>
+
+        <article className="duo-row duo-row--b">
+          <Drift className="duo-side" from={40} to={-40}>
             <Universe
               n="02"
               name="Pâtisserie"
-              image={duoPhotos.patisserie}
               title={['La gourmandise,', 'pièce par pièce.']}
               items={['Entremets', 'Macarons', 'Gâteaux', 'Créations']}
               href="/creations?filtre=patisserie"
               cta="Découvrir la pâtisserie"
-              sizes="(max-width: 899px) 92vw, 38vw"
             />
           </Drift>
+          <Shot image={media.gateauFruits} sizes="(max-width: 899px) 92vw, 52vw" className="duo-shot" />
+        </article>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- 3. La vitrine : une photographie immense, puis la boutique ---------- */
+export function Vitrine() {
+  return (
+    <section className="vt" aria-labelledby="vt-title">
+      <div className="wrap vt-head">
+        <span className="hlabel">Au comptoir</span>
+        <Split id="vt-title" lines={['La', { em: 'vitrine.' }]} className="d-xl" />
+      </div>
+      <Strip label="La vitrine de pâtisseries : faites glisser pour la parcourir" className="vt-strip">
+        <Shot image={media.vitrinePatisseries} quality={95} sizes="(max-width: 899px) 790px, 100vw" className="vt-hero" />
+      </Strip>
+      <div className="wrap vt-foot">
+        <Shot image={media.vitrineEclairs} sizes="(max-width: 899px) 92vw, 56vw" className="vt-boutique" caption={<Cap name="Éclairs, Paris-Brest, tartes" detail="Au fil des jours" />} />
+        <div className="vt-text">
+          <p className="vt-lead" data-reveal>
+            Ce qui sort du fournil et ce qui passe en vitrine change au fil des jours et des saisons.
+          </p>
+          <Link className="btn-duo" href="/creations">
+            Découvrir toutes les créations <Arrow />
+          </Link>
         </div>
       </div>
     </section>
   );
 }
 
-/* ---------- 3. La vitrine : une grille nette, trois par trois ---------- */
-export function Vitrine({ items }: { items: GalleryItem[] }) {
-  // Toujours des rangées complètes de trois (6 ou 3 photos) : rien ne dépasse, rien ne manque.
-  const shown = items.slice(0, items.length >= 6 ? 6 : items.length >= 3 ? 3 : items.length);
-  if (!shown.length) return null;
-  const category = (g: GalleryItem) => galleryCategories.find((c) => c.id === g.category)?.label ?? '';
-  // « Viennoiseries » / « Viennoiserie » : la catégorie n'est pas répétée sous un nom qui la dit déjà.
-  const base = (t: string) => t.toLowerCase().normalize('NFD').replace(/[^a-z]/g, '').replace(/s$/, '');
-  const same = (title: string | null, cat: string) => !title || base(title) === base(cat);
+/* ---------- 4. Les produits : grand format, puis deux, puis grand format, puis deux ---------- */
+const pairs: { a: { image: Media; name: string; detail: string; href: string }; b: { image: Media; name: string; detail: string; href: string } }[] = [
+  {
+    a: { image: media.macarons, name: 'Grands macarons', detail: 'Framboise · pistache', href: '/creations?filtre=patisserie' },
+    b: { image: media.flans, name: 'Flans individuels', detail: 'Chocolat · pistache', href: '/creations?filtre=patisserie' },
+  },
+  {
+    a: { image: media.cookies, name: 'Cookies garnis', detail: 'Chocolat · caramel · fruits rouges', href: '/creations?filtre=patisserie' },
+    b: { image: media.baguettesFournil, name: 'Baguettes', detail: 'À la sortie du four', href: '/creations?filtre=pain' },
+  },
+];
+
+function Pair({ pair, offset }: { pair: (typeof pairs)[number]; offset: 'a' | 'b' }) {
   return (
-    <section className="vt" id="vitrine" aria-labelledby="vt-title">
+    <div className={`pr-pair pr-pair--${offset}`}>
+      {[pair.a, pair.b].map((p, i) => (
+        <Link key={p.name} href={p.href} className="pr-link">
+          <Shot image={p.image} sizes="(max-width: 899px) 92vw, 46vw" index={i} caption={<Cap name={p.name} detail={p.detail} />} />
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+export function Produits() {
+  return (
+    <section className="pr" aria-labelledby="pr-title">
       <div className="wrap">
-        <div className="vt-head">
-          <Split id="vt-title" lines={['La', { em: 'vitrine.' }]} className="d-1" />
-          <div className="vt-aside" data-reveal>
-            <p>Ce qui sort du fournil et ce qui passe en vitrine change au fil des jours et des saisons.</p>
-            <Link className="vt-all" href="/creations">
-              Toute la galerie <Arrow />
-            </Link>
-          </div>
-        </div>
-        <ul className="vt-grid" role="list">
-          {shown.map((g, i) => (
-            <li key={g.id} className="vt-item" data-reveal style={{ ['--i' as string]: i % 3 }}>
-              <Link href={`/creations?filtre=${g.category}`} className="vt-link">
-                <Photo image={{ src: g.src, alt: g.alt }} sizes="(max-width: 599px) 92vw, (max-width: 999px) 46vw, 30vw" className="vt-photo" reveal={false} />
-                <span className="vt-cap">
-                  <span className="vt-name">{g.title ?? category(g)}</span>
-                  {!same(g.title, category(g)) && <span className="vt-cat">{category(g)}</span>}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <header className="pr-head">
+          <span className="hlabel">Les créations</span>
+          <Split id="pr-title" lines={['Pièce', { em: 'après pièce.' }]} className="d-1" />
+        </header>
+
+        <Link href="/creations?filtre=viennoiserie" className="pr-link pr-wide">
+          <ArtShot
+            wide={media.painsChocolatWide}
+            square={media.painsChocolat}
+            wideSizes="(max-width: 1440px) 92vw, 1328px"
+            caption={<Cap name="Pains au chocolat" detail="Feuilletage doré" />}
+          />
+        </Link>
+        <Pair pair={pairs[0]!} offset="a" />
+        <Link href="/creations?filtre=patisserie" className="pr-link pr-wide">
+          <ArtShot
+            wide={media.entremetsWide}
+            square={media.entremets}
+            wideSizes="(max-width: 1440px) 92vw, 1328px"
+            caption={<Cap name="Entremets citron & framboise" detail="Pâtisseries individuelles" />}
+          />
+        </Link>
+        <Pair pair={pairs[1]!} offset="b" />
+
+        <p className="pr-more">
+          <Link className="ulink" href="/creations">
+            Toute la galerie <Arrow />
+          </Link>
+        </p>
       </div>
     </section>
   );
 }
 
-/* ---------- 4. Respiration plein écran, puis les commandes qui glissent par-dessus ---------- */
-export function Pause() {
+/* ---------- 5. Le fournil : un écran épuré ---------- */
+const gestures = ['Pétrir.', 'Façonner.', 'Cuire.', 'Créer.'];
+
+export function Fournil() {
   return (
-    <section className="ps" aria-labelledby="ps-title">
-      <Settle className="ps-media">
-        <Image src={pausePhoto.src} alt={pausePhoto.alt} fill sizes="100vw" quality={82} />
-      </Settle>
-      <Split as="h2" id="ps-title" lines={['Fait ici,', { em: 'à Rantigny.' }]} className="d-1 ps-title" />
+    <section className="fo" aria-labelledby="fo-title">
+      <div className="wrap fo-grid">
+        <div className="fo-text">
+          <span className="hlabel hlabel--light">Le fournil</span>
+          <Split id="fo-title" lines={['Fait ici.', { em: 'À Rantigny.' }]} className="d-1" />
+          <ol className="fo-words">
+            {gestures.map((w, i) => (
+              <li key={w} data-reveal style={{ ['--i' as string]: i }}>
+                {w}
+              </li>
+            ))}
+          </ol>
+        </div>
+        <Drift className="fo-media" from={24} to={-24}>
+          <Shot image={media.petrin} sizes="(max-width: 899px) 92vw, 46vw" />
+        </Drift>
+      </div>
     </section>
   );
 }
 
+/* ---------- 6. Sur mesure : les jours qui comptent ---------- */
 const occasions = [
   { label: 'Anniversaire.', type: 'Anniversaire' },
   { label: 'Événement.', type: 'Événement' },
   { label: 'Envie particulière.', type: 'Autre' },
 ];
 
-export function Occasions() {
+export function SurMesure() {
   return (
     <section className="oc" aria-labelledby="oc-title">
       <div className="wrap oc-grid">
-        <Drift className="oc-media" from={70} to={-70}>
-          <Photo image={occasionPhoto} sizes="(max-width: 899px) 92vw, 46vw" className="oc-photo" />
-        </Drift>
+        <Shot image={media.numberCake} sizes="(max-width: 899px) 92vw, 50vw" className="oc-shot" />
         <div className="oc-body">
           <span className="hlabel hlabel--light">Gâteaux sur mesure</span>
           <Split id="oc-title" lines={['Les jours', { em: 'qui comptent.' }]} className="d-1" />
@@ -196,48 +252,74 @@ export function Occasions() {
   );
 }
 
-/* ---------- 5. Preuve sociale : la note, et trois voix ---------- */
+/* ---------- 7. Le salé : et aussi, pour midi ---------- */
+export function Sale() {
+  return (
+    <section className="sl" aria-labelledby="sl-title">
+      <div className="wrap">
+        <header className="sl-head">
+          <div>
+            <span className="hlabel">Le salé</span>
+            <Split id="sl-title" lines={['Et aussi,', { em: 'pour midi.' }]} className="d-1" />
+          </div>
+          <div className="sl-aside" data-reveal>
+            <p>Sandwichs en baguette, salades composées, salades de pâtes : de quoi déjeuner sur le pouce.</p>
+            <Link className="ulink" href="/creations?filtre=sale">
+              Voir le salé <Arrow />
+            </Link>
+          </div>
+        </header>
+        <div className="sl-grid">
+          <Shot image={media.sandwichs} sizes="(max-width: 899px) 92vw, 46vw" caption={<Cap name="Sandwichs" detail="En baguette" />} />
+          <Shot image={media.salades} sizes="(max-width: 899px) 92vw, 46vw" index={1} caption={<Cap name="Salades" detail="Composées, à emporter" />} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- 8. Les avis : la note, et trois voix ---------- */
 const fr = (n: number) => n.toLocaleString('fr-FR', { maximumFractionDigits: 1 });
 const frMonth = (iso: string) => new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(iso + 'T12:00:00Z'));
 const featured = ['Amandine R.', 'Marie-Laure D.', 'Samantha D.'];
 
-export function Proof({ reviews }: { reviews: ReviewsSettings }) {
+export function Avis({ reviews }: { reviews: ReviewsSettings }) {
   const { rating, count } = reviews;
   const url = reviews.url ?? reviewsUrl;
   const quotes = reviewQuotes.filter((q) => featured.includes(q.author));
   return (
-    <section className="pf" aria-labelledby="pf-title">
-      <div className="wrap pf-grid">
-        <div className="pf-score">
-          <h2 id="pf-title" className="hlabel">
+    <section className="av" aria-labelledby="av-title">
+      <div className="wrap">
+        <div className="av-score">
+          <h2 id="av-title" className="hlabel">
             Ce qu’en disent les clients
           </h2>
           {rating !== null && count !== null && (
-            <>
-              <p className="pf-value" data-reveal>
+            <div className="av-row" data-reveal>
+              <p className="av-value">
                 {fr(rating)}
                 <small>/ 5</small>
               </p>
-              <p className="pf-meta" data-reveal>
-                <span className="pf-stars" style={{ ['--r' as string]: rating / 5 }} role="img" aria-label={`${fr(rating)} sur 5`}>
+              <p className="av-meta">
+                <span className="av-stars" style={{ ['--r' as string]: rating / 5 }} role="img" aria-label={`${fr(rating)} sur 5`}>
                   <span>{Array.from({ length: 5 }, (_, i) => <StarIcon key={i} />)}</span>
                   <span aria-hidden="true">{Array.from({ length: 5 }, (_, i) => <StarIcon key={i} />)}</span>
                 </span>
-                {count.toLocaleString('fr-FR')} avis Google
+                <span>{count.toLocaleString('fr-FR')} avis Google</span>
+                <a className="ulink" href={url} target="_blank" rel="noopener noreferrer">
+                  Lire les avis <Arrow direction="up-right" />
+                </a>
               </p>
-            </>
+            </div>
           )}
-          <a className="pf-link" href={url} target="_blank" rel="noopener noreferrer">
-            Lire les avis sur Google <Arrow direction="up-right" />
-          </a>
         </div>
-        <ul className="pf-quotes" role="list">
+        <ul className="av-quotes" role="list">
           {quotes.map((q, i) => (
             <li key={q.author} data-reveal style={{ ['--i' as string]: i }}>
               <blockquote>
                 <p>{q.text}</p>
               </blockquote>
-              <p className="pf-by">
+              <p className="av-by">
                 {q.author}
                 <span>
                   {q.topic} · avis Google, {frMonth(q.date)}
@@ -251,50 +333,50 @@ export function Proof({ reviews }: { reviews: ReviewsSettings }) {
   );
 }
 
-/* ---------- 6. La maison : la devanture, l'adresse, les horaires ---------- */
-export function Maison({ week, exceptions }: { week: Interval[][]; exceptions: DayException[] }) {
+/* ---------- 9. La boutique : le comptoir, l'adresse, les horaires (la devanture ouvre la page) ---------- */
+export function Boutique({ week, exceptions }: { week: Interval[][]; exceptions: DayException[] }) {
   const next = exceptions[0];
   const note = next
     ? `${next.closed ? 'Fermeture exceptionnelle' : 'Horaires exceptionnels'} le ${new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }).format(new Date(next.date + 'T12:00:00Z'))}${next.note ? ' — ' + next.note : ''}`
     : null;
   return (
-    <section className="ms" id="infos" aria-labelledby="ms-title">
-      <Pan className="ms-photo" amount={5}>
-        <Image src={maisonPhoto.src} alt={maisonPhoto.alt} fill sizes="100vw" quality={82} />
-      </Pan>
-      <div className="wrap ms-wrap">
-        <div className="ms-panel">
-          <div className="ms-intro">
-            <span className="hlabel hlabel--light">La maison</span>
-            <Split id="ms-title" lines={['Rendez-vous', { em: 'à Rantigny.' }]} className="d-2" />
-            <OpenNowLine week={week} exceptions={exceptions} className="ms-now" />
+    <section className="bq" id="boutique" aria-labelledby="bq-title">
+      <Shot image={media.boutique} quality={95} sizes="100vw" className="bq-shot" />
+      <div className="bq-panel">
+        <div className="wrap bq-grid">
+          <div className="bq-intro">
+            <span className="hlabel">La boutique</span>
+            <Split id="bq-title" lines={['Le Duo', { em: 'd’Artisans.' }]} className="d-1" />
+            <OpenNowLine week={week} exceptions={exceptions} className="bq-now" />
           </div>
-          <dl className="ms-facts">
-            <div>
-              <dt>Adresse</dt>
-              <dd>
-                {site.address.street}
-                <br />
-                {site.address.postalCode} {site.address.city}
-              </dd>
-            </div>
-            <div>
-              <dt>Téléphone</dt>
-              <dd>
-                <a href={site.phone.href}>{site.phone.display}</a>
-              </dd>
-            </div>
-          </dl>
-          <div className="ms-hours">
+          <div className="bq-facts">
+            <dl>
+              <div>
+                <dt>Adresse</dt>
+                <dd>
+                  {site.address.street}
+                  <br />
+                  {site.address.postalCode} {site.address.city}
+                </dd>
+              </div>
+              <div>
+                <dt>Téléphone</dt>
+                <dd>
+                  <a href={site.phone.href}>{site.phone.display}</a>
+                </dd>
+              </div>
+            </dl>
+            <p className="bq-actions">
+              <a className="bq-go" href={site.maps.directions} target="_blank" rel="noopener noreferrer">
+                Itinéraire <Arrow direction="up-right" />
+              </a>
+              <a className="bq-call" href={site.phone.href}>
+                Appeler
+              </a>
+            </p>
+          </div>
+          <div className="bq-hours">
             <HoursTable week={week} note={note} />
-          </div>
-          <div className="ms-actions">
-            <a className="ms-go" href={site.maps.directions} target="_blank" rel="noopener noreferrer">
-              Itinéraire <Arrow direction="up-right" />
-            </a>
-            <a className="ms-call" href={site.phone.href}>
-              Appeler
-            </a>
           </div>
         </div>
       </div>

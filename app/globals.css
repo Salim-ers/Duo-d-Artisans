@@ -7,11 +7,11 @@
 
 :root {
   /* Matières */
-  --creme: #f4eee3;
-  --ivoire: #fbf8f2;
+  --creme: #f4efe7;
+  --ivoire: #faf8f4;
   --pierre: #e6dccb;
   --mie: #efe5d4;
-  --encre: #1c1612;
+  --encre: #161311;
   --encre-2: #5e544a;
   --brun: #2a1e16;
   --cafe: #3b2a1f;
@@ -25,10 +25,13 @@
   --cuivre: #b8763e;
 
   /* La devanture : bleu nuit, beurre, chocolat (direction de l’accueil, de l’en-tête et du pied de page) */
-  --nuit: #152c3a;
-  --nuit-2: #1d3a4c;
+  --bleu-duo: #176a9a;
+  --bleu-duo-fonce: #11577f;
+  --nuit: #102733;
+  --nuit-2: #183746;
   --beurre: #e3c9a3;
-  --chocolat: #3a241d;
+  --caramel-clair: #c99b66;
+  --chocolat: #39251f;
   --blanc: #faf8f4;
   --filet-nuit: rgba(243, 236, 226, 0.16);
 
@@ -194,11 +197,22 @@ a:hover > .arrow[style] { transform: rotate(-45deg) translateX(3px); }
    Le masque est porté par l'image (jamais par l'élément observé, pour que l'IntersectionObserver le voie). */
 .photo[data-reveal] { transition: background-color 0.6s var(--ease); }
 .photo[data-reveal] img {
-  transition: clip-path 1.3s var(--ease-in-out), transform 1.8s var(--ease-out);
+  transition: clip-path 1.3s var(--ease-in-out);
   transition-delay: calc(var(--i, 0) * 110ms);
 }
 :root[data-motion] .photo[data-reveal]:not([data-shown]) { opacity: 1; transform: none; background-color: transparent; }
-:root[data-motion] .photo[data-reveal]:not([data-shown]) img { clip-path: inset(100% 0 0 0); transform: scale(1.18); }
+:root[data-motion] .photo[data-reveal]:not([data-shown]) img { clip-path: inset(100% 0 0 0); }
+
+/* Photo ENTIÈRE à son ratio d’origine (components/ui/Shot.tsx) : jamais recadrée, jamais zoomée.
+   Révélation : un masque s’ouvre du bas vers le haut (clip-path seul). */
+.shot { margin: 0; }
+.shot img { display: block; width: 100%; height: auto; background: var(--pierre); }
+.shot[data-reveal] img { transition: clip-path 1.3s var(--ease-in-out); transition-delay: calc(var(--i, 0) * 120ms); }
+:root[data-motion] .shot[data-reveal]:not([data-shown]) { opacity: 1; transform: none; }
+:root[data-motion] .shot[data-reveal]:not([data-shown]) img { clip-path: inset(100% 0 0 0); }
+.shot figcaption { display: flex; justify-content: space-between; align-items: baseline; gap: 6px 16px; flex-wrap: wrap; padding-top: 14px; }
+.cap-name { font-family: var(--f-display-stack); font-size: clamp(1.45rem, 1.2rem + 0.7vw, 1.95rem); line-height: 1.05; }
+.cap-detail { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: var(--bleu-duo); }
 
 /* Titres révélés ligne à ligne : chaque mot glisse hors de son masque. */
 .split { display: block; }
@@ -240,7 +254,8 @@ a:hover > .arrow[style] { transform: rotate(-45deg) translateX(3px); }
   letter-spacing: -0.01em; text-decoration: none; white-space: nowrap; line-height: 1;
 }
 .wordmark em { color: var(--caramel); transition: color 0.6s var(--ease); }
-.masthead[data-over] .wordmark em { color: var(--beurre); }
+/* Sur le bandeau bleu : crème chaud (contraste ≥ 4,5:1). */
+.masthead[data-over] .wordmark em { color: #f3e6d0; }
 .primary-nav { margin-inline: auto; }
 .primary-nav ul { display: flex; gap: clamp(20px, 2.4vw, 40px); }
 .primary-nav a { position: relative; font-size: 0.9rem; font-weight: 500; text-decoration: none; padding-block: 8px; letter-spacing: 0.01em; }

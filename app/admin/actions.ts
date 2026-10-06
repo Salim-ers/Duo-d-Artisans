@@ -196,7 +196,6 @@ export async function galleryUpload(fd: FormData) {
         alt: text(200).parse(str(fd, 'alt')) || f.name.replace(/\.[a-z0-9]+$/i, '').replace(/[-_]+/g, ' '),
         title: text(80).parse(str(fd, 'title')) || null,
         category: galleryCat.parse(str(fd, 'category') || 'boutique'),
-        showOnHome: bool(fd, 'showOnHome'),
         position: ++pos,
       });
     }
@@ -215,7 +214,6 @@ export async function galleryUpdate(fd: FormData) {
         title: text(80).parse(str(fd, 'title')) || null,
         description: text(200).parse(str(fd, 'description')) || null,
         category: galleryCat.parse(str(fd, 'category')),
-        showOnHome: bool(fd, 'showOnHome'),
         active: bool(fd, 'active'),
       })
       .where(eq(s.gallery.id, uuid.parse(str(fd, 'id'))));
@@ -223,7 +221,7 @@ export async function galleryUpdate(fd: FormData) {
   });
 }
 
-/** Avance ou recule une photo d'un rang (l'ordre est celui de la galerie et de l'accueil). */
+/** Avance ou recule une photo d'un rang (ordre de la page Créations). */
 export async function galleryMove(fd: FormData) {
   await run(fd, 'ADMIN', '/admin/galerie', async () => {
     const id = uuid.parse(str(fd, 'id'));
